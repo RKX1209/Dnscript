@@ -57,15 +57,14 @@ public:
   static int main(int argc,char *argv[]){
     glutInit(&argc,argv);
     glutInitWindowPosition(win_posx,win_posy);
-    glutInitWindowSize(win_height,win_width);
+    glutInitWindowSize(win_width,win_height);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-    glutCreateWindow(win_title);
     glutDisplayFunc(repaint);	//[handler] window repaint
     glutCloseFunc(close);	//[handler] window close
     glutKeyboardFunc(key_push);	//[handler] keyboard push
     glutKeyboardUpFunc(key_release);	//[handler] keyboard release
     glutTimerFunc(timer_wait_mil, main_loop, 0);	//[handler] interval timer
-
+    glutCreateWindow(win_title);
     init();
 
     glutMainLoop();

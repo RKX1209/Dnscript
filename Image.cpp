@@ -1,18 +1,21 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 #include <png++/png.hpp>
 #include "Image.hpp"
 
-void Image::load_graphic(char* _filename){
+void Image::load_graphic(std::string _filename){
   this->filename = _filename;
-  char *dot;
+  size_t dot = 0;
   try{
-    if((dot = strstr(this->filename,".")) != NULL){
-      const char *ext = ++dot;
-      if(strcmp(ext,"png") == 0){
+    dot = filename.find(".");
+    if(dot != std::string::npos){
+      std::string ext = filename.substr(dot + 1);
+      //printf("%s\n",ext.c_str());
+      if(ext == "png"){
         this->__load_graphic_png();
       }else{
         throw "[*ERROR*] Image::load_graphic image format not supported";
@@ -21,7 +24,7 @@ void Image::load_graphic(char* _filename){
       throw "[*ERROR*] Image::load_graphic file extension not found";
     }
    }catch(char *error){
-     std::cerr << error << "\n";
+     printf("%s\n",error);
      abort();
    }
 }
@@ -32,6 +35,7 @@ void Image::__load_graphic_png(){
     this->width = image.get_width();
     this->height = image.get_height();
     this->img_buff.resize(this->width * this->height * 3);
+    //printf("%d x %d\n",this->width,this->height);
     for (size_t y = 0; y < this->height; ++y) {
       for (size_t x = 0; x < this->width; ++x){
         this->img_buff[y * 3 * width + x * 3 + 0] = (char)image[y][x].red;
@@ -39,8 +43,17 @@ void Image::__load_graphic_png(){
         this->img_buff[y * 3 * width + x * 3 + 2] = (char)image[y][x].blue;
       }
     }
+/*    for (size_t y = 0; y < this->height / 100; ++y) {
+      for (size_t x = 0; x < this->width; ++x){
+        printf("(0x%08x,0x%08x,0x%08x)",this->img_buff[y * 3 * width + x * 3 + 0],
+                      this->img_buff[y * 3 * width + x * 3 + 1],
+                      this->img_buff[y * 3 * width + x * 3 + 2]);
+      }
+    }*/
+
   }catch(png::error& error){
-    std::cerr << error.what() << "\n";
+    printf("%s\n",error.what());
     abort();
   }
+  printf("%s\n",this->filename.c_str());
 }

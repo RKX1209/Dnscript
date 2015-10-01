@@ -1,8 +1,9 @@
 #ifndef __API_HPP__
 #define __API_HPP__
 
+#include <string>
 /* ### Singleton class ### */
-class Character;
+class Object;
 class Api{
 private:
   Api(){;}
@@ -13,9 +14,10 @@ public:
   static Api* instance();
   static void create();
   static void destroy();
-  void LoadGraphic(Character* target,char* filename);
-  void SetTexture(Character* target,char* filename);
-  void SetGraphicRect(Character* target,int sx,int sy,int dx,int dy);
+  void LoadGraphic(Object* target,std::string filename);
+  void SetTexture(Object* target,std::string filename);
+  void SetGraphicRect(Object* target,GLfloat sx,GLfloat sy,GLfloat dx,GLfloat dy);
+  void DrawGraphic(Object* target,GLfloat x,GLfloat y);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define __IAMGE_HPP__
 
 #include <vector>
+#include <string>
 
 class Image{
 private:
@@ -9,10 +10,10 @@ private:
   int width;
   int height;
   GLfloat img_pos[2 * 4];
-  char* filename;
+  std::string filename;
 public:
-  Image():width(0),height(0),filename(0){;}
-  void load_graphic(char* _filename);
+  Image():width(0),height(0){;}
+  void load_graphic(std::string _filename);
   void __load_graphic_png();
   GLvoid* get_buff(){
     return &(this->img_buff[0]);

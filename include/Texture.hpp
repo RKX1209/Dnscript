@@ -13,13 +13,16 @@ public:
       return this->tex_id;
     }
     GLuint* get_tex_idp(){
-      return &(this->tex_id);
+      return &tex_id;
     }
     void set_tex_id(GLuint _tex_id){
       this->tex_id = _tex_id;
     }
-    void set_tex_pos(GLuint _tex_pos[2 * 4]){
-      memcpy(this->tex_pos,_tex_pos,2 * 4 * sizeof(GLuint));
+    void set_tex_pos(GLfloat _tex_pos[2 * 4]){
+      memcpy(this->tex_pos,_tex_pos,2 * 4 * sizeof(GLfloat));
+    }
+    GLfloat* get_tex_pos(){
+      return tex_pos;
     }
 };
 

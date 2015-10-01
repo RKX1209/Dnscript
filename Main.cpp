@@ -1,3 +1,6 @@
+#include <cstdio>
+#include <SDL.h>
+#include <SDL_opengl.h>
 #include <GL/glut.h>
 #include <GL/freeglut.h>
 
@@ -6,8 +9,8 @@
 
 const int Window::win_posx = 100;
 const int Window::win_posy = 100;
-const int Window::win_width = 200;
-const int Window::win_height = 200;
+const int Window::win_width = 800;
+const int Window::win_height = 400;
 const char* Window::win_title = "Dnscript ver1.0";
 const double Window::fps = 30;
 const int Window::timer_wait_mil = 1.0 / Window::fps * 1000;
