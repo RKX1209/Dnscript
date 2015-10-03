@@ -1,23 +1,24 @@
 #include <cstdio>
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <GL/glut.h>
-#include <GL/freeglut.h>
 
 #include "Dnscript.hpp"
 #include "Window.hpp"
 
-const int Window::win_posx = 100;
-const int Window::win_posy = 100;
-const int Window::win_width = 800;
-const int Window::win_height = 400;
-const char* Window::win_title = "Dnscript ver1.0";
+SDL_Window* Window::window;
+SDL_Renderer* Window::renderer;
+SDL_Rect Window::win_rect;
 const double Window::fps = 30;
 const int Window::timer_wait_mil = 1.0 / Window::fps * 1000;
-Dnscript* Window::dnscript = new Dnscript();
+Dnscript* Window::dnscript;
+const char* Window::win_title = "Dnscript ver 1.0";
 
 /* entry point */
 int main(int argc,char *argv[]){
+  Window::win_rect.x = 100;
+  Window::win_rect.y = 100;
+  Window::win_rect.w = 800;
+  Window::win_rect.h = 400;
+  Window::init();
+  Window::dnscript = new Dnscript();
   Window::main(argc,argv);
   delete Window::dnscript;
 }

@@ -1,73 +1,72 @@
 #ifndef __WINDOW_HPP__
 #define __WINDOW_HPP__
 
+#include <SDL.h>
+
 class Dnscript;
+
 class Window{
-private:
-  static const int win_posx;
-  static const int win_posy;
-  static const int win_width;
-  static const int win_height;
+public:
+  static SDL_Window* window;
+  static SDL_Renderer* renderer;
+  static SDL_Rect win_rect;
   static const char* win_title;
   static const double fps;
   static const int timer_wait_mil;
-public:
   static Dnscript* dnscript;
+
   Window(void) { ; }
+
   static void init(void){
-    glClearColor(0.5, 0.5, 1.0, 1.0);
+    try{
+        if( SDL_Init(SDL_INIT_EVERYTHING) < 0 ) throw "[*ERROR*] Window::main SDL_Init fail";
+        SDL_CreateWindowAndRenderer(win_rect.w, win_rect.h,0,&window,&renderer);
+      }catch(char *error){
+        fprintf(stderr,"%s\n",error);
+        abort();
+      }
+  }
 
-  	glEnable(GL_DEPTH_TEST);
-  	glEnable(GL_LIGHTING);
-  	glEnable(GL_LIGHT0);
-
-  	glEnable(GL_CULL_FACE);
-  	glCullFace(GL_BACK);
+  static void update(void){
+    dnscript->update();
   }
 
   static void draw(void){
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     dnscript->draw();
   }
 
-  static void repaint(void){
-    draw();
-    glutSwapBuffers();
+  static void quit(void){
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
   }
 
-  static void main_loop(int value){
-    glutTimerFunc(timer_wait_mil, main_loop, 0);
-  	glutSwapBuffers();
-    dnscript->update();
-    draw();
-  }
-
-  static void key_push(unsigned char key, int x, int y){
-
-  }
-
-  static void key_release(unsigned char key, int x, int y){
-  }
-
-  static void close(void){
-    /* cleanup objects */
-
+  static bool polling_event(void){
+    SDL_Event ev;
+    SDL_Keycode key;
+    while ( SDL_PollEvent(&ev) ){
+      switch(ev.type){
+        case SDL_QUIT:
+          return false;
+          break;
+        case SDL_KEYDOWN:
+        {
+          key = ev.key.keysym.sym;
+          if(key == SDLK_ESCAPE){ return false; }
+        }
+          break;
+      }
+    }
+    return true;
   }
 
   static int main(int argc,char *argv[]){
-    glutInit(&argc,argv);
-    glutInitWindowPosition(win_posx,win_posy);
-    glutInitWindowSize(win_width,win_height);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-    glutDisplayFunc(repaint);	//[handler] window repaint
-    glutCloseFunc(close);	//[handler] window close
-    glutKeyboardFunc(key_push);	//[handler] keyboard push
-    glutKeyboardUpFunc(key_release);	//[handler] keyboard release
-    glutTimerFunc(timer_wait_mil, main_loop, 0);	//[handler] interval timer
-    glutCreateWindow(win_title);
-    init();
-
-    glutMainLoop();
+    while (polling_event()) {
+      update();
+      draw();
+      SDL_Delay((Uint32)timer_wait_mil);
+    }
+    quit();
     return 0;
   }
 };

@@ -1,8 +1,5 @@
 #include <string>
-#include <GL/glut.h>
-#include <GL/freeglut.h>
 #include "Api.hpp"
-#include "Image.hpp"
 #include "Object.hpp"
 #include "Title.hpp"
 #include "Dnscript.hpp"
@@ -12,10 +9,10 @@ Title::Title(){
   api = Api::instance();
   obj_back = new Object();
   std::string filename("img/select.png");
-  Image* image = obj_back->get_image();
   api->LoadGraphic(obj_back,filename);
   api->SetTexture(obj_back,filename);
-  api->SetGraphicRect(obj_back,0,0,image->get_width(),image->get_height());
+  SDL_Surface* image = obj_back->get_image();
+  api->SetGraphicRect(obj_back,0,0,image->w,image->h);
 }
 
 Title::~Title(){
@@ -27,7 +24,7 @@ void Title::update(Dnscript *parent){
 }
 
 void Title::draw(){
-  Image* image = obj_back->get_image();
-  //printf("%d x %d\n",image->get_width(),image->get_height());
-  api->DrawGraphic(obj_back,image->get_width() / 2,image->get_height() / 2);
+  SDL_Surface* image = obj_back->get_image();
+  //printf("%d x %d\n",image->w,image->h);
+  api->DrawGraphic(obj_back,0,0);
 }

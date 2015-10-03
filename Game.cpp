@@ -1,8 +1,5 @@
 #include <string>
-#include <GL/glut.h>
-#include <GL/freeglut.h>
 #include "Api.hpp"
-#include "Image.hpp"
 #include "Object.hpp"
 #include "Game.hpp"
 #include "Dnscript.hpp"
