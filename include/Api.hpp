@@ -17,10 +17,13 @@ public:
   static Api* instance();
   static void create();
   static void destroy();
-  void LoadGraphic(Object* target,std::string filename);
-  void SetTexture(Object* target,std::string filename);
-  void SetGraphicRect(Object* target,Uint32 sx,Uint32 sy,Uint32 dx,Uint32 dy);
-  void DrawGraphic(Object* target,Uint32 x,Uint32 y);
+  void LoadGraphic(Object*,std::string);
+  void SetTexture(Object*,std::string);
+  void SetGraphicRect(Object*,Uint32,Uint32,Uint32,Uint32);
+  void DrawGraphic(Object*,Uint32,Uint32);
+  void CreatePlayerShot01(Object*,int,int,double,double,double,int,int);
+  void CreateShot01(Object*,int,int,double,double,int,int);
+  void SetMovePosition02(Object*,int,int,int);
 };
 
 #endif

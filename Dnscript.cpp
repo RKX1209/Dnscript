@@ -1,7 +1,3 @@
-#include <GL/gl.h>
-#include <GL/glut.h>
-#include <GL/glu.h>
-#include <GL/freeglut.h>
 #include <cstdlib>
 #include <cstdio>
 
@@ -13,7 +9,7 @@
 #include "Dnscript.hpp"
 #include "Utility.hpp"
 
-Dnscript::Dnscript():title(0),select(0),game(0){  
+Dnscript::Dnscript():title(0),select(0),game(0){
   title = new Title();
   next = SEQ_NONE;
 }
@@ -63,4 +59,7 @@ void Dnscript::draw(void){
   }else{
     abort();
   }
+}
+void Dnscript::moveTo(SeqID _next){
+  next = _next;
 }

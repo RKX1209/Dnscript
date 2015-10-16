@@ -1,19 +1,19 @@
-#ifndef __TITLE_HPP__
-#define __TITLE_HPP__
+#ifndef __CLEAR_HPP__
+#define __CLEAR_HPP__
 class Object;
-class Dnscript;
+class Game;
 class Api;
 class Keyboard;
 
-class Title{
+class Clear{
 private:
   Api* api;
   Keyboard* keyboard;
 public:
   Object* obj_back;
-  Title();
-  ~Title();
-  void update(Dnscript*);
+  Clear();
+  ~Clear();
+  void update(Game*);
   void draw();
 };
 

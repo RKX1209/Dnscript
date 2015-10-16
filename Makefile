@@ -1,5 +1,7 @@
 OBJS		=		Main.o Dnscript.o Title.o Select.o Game.o \
-						Keyboard.o Api.o
+						Event.o Keyboard.o Api.o\
+						Game/Load.o Game/Clear.o Game/Play.o Game/Menu.o Game/Player.o\
+						Game/Bullet.o
 
 CURPATH = 	$(shell pwd)
 INCLUDE =		$(CURPATH)/include
@@ -25,7 +27,8 @@ else
 endif
 
 clean :
-	rm -rf $(DNSCRIPT) *.o
+	rm -rf $(DNSCRIPT)
+	find . -regex ".*\.o" -exec rm -rf {} \;
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAG) $*.o -c $*.cpp

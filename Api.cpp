@@ -16,7 +16,7 @@ void Api::create(){
   try{
     if(mInstance) throw "[*ERROR*] Api::create() cannnot create instance twice";
     mInstance = new Api();
-  }catch(char *error){
+  }catch(const char *error){
     fprintf(stderr,"%s\n",error);
     abort();
   }
@@ -24,6 +24,7 @@ void Api::create(){
 
 void Api::destroy(){
   delete mInstance;
+  mInstance = 0;
 }
 
 /* ### API list ### */
@@ -49,4 +50,17 @@ void Api::DrawGraphic(Object* target,Uint32 x,Uint32 y){
   SDL_RenderClear(renderer);
   SDL_RenderCopy(renderer, target->get_texture(), nullptr, nullptr);
   SDL_RenderPresent(renderer);
+}
+
+void Api::CreatePlayerShot01(Object* target,int x,int y,
+                            double speed,double angle,double damage,
+                            int pene,int id){
+
+}
+void Api::CreateShot01(Object* target,int x,int y,
+                      double speed,double angle,int color,int delay){
+
+}
+void Api::SetMovePosition02(Object* target,int x,int y,int frame){
+
 }
