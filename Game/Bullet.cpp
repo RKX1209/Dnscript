@@ -15,6 +15,7 @@ Bullet::Bullet(){
   SDL_Surface* image = obj_back->get_image();
   api->SetGraphicRect(obj_back,1,1,31,31);
   state = STATE_NONE;
+  id = 1;
 }
 
 Bullet::~Bullet(){

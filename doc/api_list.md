@@ -22,32 +22,37 @@ filenameで指定された画像データをテクスチャに設定する
 かすり判定の半径r
 ### SetIntersectionCircle(x,y,r) [プレイヤーのみ]
 当たり判定の中心座標(x,y)と半径r
+### SetSpeed(speed) *
+スピードを設定する
+### SetLife(life) *
+体力を設定する
+### SetX(x) *
+x座標を設定する
+### SetY(y) *
+y座標を設定する
+### GetPlayerX() [プレイヤーのみ]*
+プレイヤーのx座標を取得する
+### GetPlayerY() [プレイヤーのみ]*
+プレイヤーのy座標を取得する
+
 
 ## Danmaku
-### CreatePlayerShot01(x,y,speed,angle,damage,pene,id) ［プレイヤーのみ]
+### CreatePlayerShot01(x,y,speed,angle,damage,pene,id) ［プレイヤーのみ] -
 座標(x,y)から速度speed,角度angle,貫通力peneの弾(id値で指定)を1発打つ
 ### CreateShot01(x,y,speed,angle,color,delay)
 座標(x,y)から速度speed,角度angleの弾を1発打つ
 colorは弾の色,delayは初弾が発射されるまでの遅延フレーム数
 
-### SetSpeed(speed)
-スピードを設定する
-### SetLife(life)
-体力を設定する
-### SetX(x)
-x座標を設定する
-### SetY(y)
-y座標を設定する
 
 ## Action
-SetMovePosition02(x,y,frame)
+### SetMovePosition02(x,y,frame)
 座標(x,y)にframeフレームかけて移動する
 
-## Keyboard
-GetKeyState(key)
+## Keyboard 
+### GetKeyState(key) -
 指定したキーのステータスを返す
 (KEY_PUSH,KEY_HOLD)
 ## Other
-### GetCurrentScriptDirectory()
+### GetCurrentScriptDirectory() -
 現在のディレクトリパスを取得する
 

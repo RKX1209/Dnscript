@@ -32,7 +32,7 @@ void Title::update(Dnscript *parent){
 }
 
 void Title::draw(){
-  SDL_Surface* image = obj_back->get_image();
-  //printf("%d x %d\n",image->w,image->h);
+  api->RenderClear();
   api->DrawGraphic(obj_back,0,0);
+  api->RenderPresent();  
 }

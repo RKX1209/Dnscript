@@ -19,6 +19,7 @@ private:
 public:
   bool is_keyon(SDL_Keycode key);
   bool is_keyoff(SDL_Keycode key);
+  bool is_keytoggle(SDL_Keycode key);
   void keyon(SDL_Keycode key);
   void keyoff(SDL_Keycode key);
   void keytoggle(SDL_Keycode key);

@@ -29,6 +29,7 @@ void Select::update(Dnscript* parent){
   }
 }
 void Select::draw(){
-  SDL_Surface* image = obj_back->get_image();
+  api->RenderClear();
   api->DrawGraphic(obj_back,0,0);
+  api->RenderPresent();  
 }

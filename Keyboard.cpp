@@ -28,7 +28,13 @@ bool Keyboard::is_keyon(SDL_Keycode key){
 }
 
 bool Keyboard::is_keyoff(SDL_Keycode key){
+  if(keys.find( key ) == keys.end()) return true;
   return keys[key] == KEY_RELEASE;
+}
+
+bool Keyboard::is_keytoggle(SDL_Keycode key){
+  if(keys.find( key ) == keys.end()) return false;  
+  return keys[key] == KEY_TOGGLE;
 }
 
 void Keyboard::keyon(SDL_Keycode key){

@@ -1,10 +1,12 @@
 #include <iostream>
 #include <string>
 #include <cstdio>
+#include <unistd.h>
 #include "Object.hpp"
 #include "Api.hpp"
 #include "Dnscript.hpp"
 #include "Window.hpp"
+
 
 Api* Api::mInstance = 0;
 
@@ -27,7 +29,11 @@ void Api::destroy(){
   mInstance = 0;
 }
 
+Api::Api(){
+  keyboard = Keyboard::instance();
+}
 /* ### API list ### */
+/* Graphics */
 void Api::LoadGraphic(Object* target,std::string filename){
   target->set_image(IMG_Load(filename.c_str()));
 }
@@ -47,20 +53,66 @@ void Api::SetGraphicRect(Object* target,Uint32 sx,Uint32 sy,Uint32 dx,Uint32 dy)
 void Api::DrawGraphic(Object* target,Uint32 x,Uint32 y){
   target->set_obj_pos(x,y);
   SDL_Renderer* renderer = Window::renderer;
-  SDL_RenderClear(renderer);
-  SDL_RenderCopy(renderer, target->get_texture(), nullptr, nullptr);
-  SDL_RenderPresent(renderer);
+  SDL_Rect *src = target->get_obj_rect();
+  SDL_Rect * dest = target->get_obj_pos();
+  SDL_RenderCopy(renderer, target->get_texture(),src,dest);
 }
 
+/* Status*/
+void Api::SetSpeed(Object* target,int speed){
+  target->set_speed(speed);
+}
+void Api::SetLife(Object* target,int life){
+  target->set_life(life);
+}
+void Api::SetX(Object* target,int x){
+  target->set_x(x);
+}
+void Api::SetY(Object* target,int y){
+  target->set_y(y);
+}
+int Api::GetPlayerX(Object* target){
+  return target->get_x();
+}
+int Api::GetPlayerY(Object* target){
+  return target->get_y();
+}
+
+/* Danmaku */
 void Api::CreatePlayerShot01(Object* target,int x,int y,
                             double speed,double angle,double damage,
                             int pene,int id){
-
+  target->shoot(x,y,speed,angle,damage,pene,id);
 }
 void Api::CreateShot01(Object* target,int x,int y,
                       double speed,double angle,int color,int delay){
 
 }
+
+/* Action */
 void Api::SetMovePosition02(Object* target,int x,int y,int frame){
 
+}
+
+/* Keyboard */
+Api::KeyState Api::GetKeyState(SDL_Keycode key){
+  if(keyboard->is_keyon(key)) return KEY_PUSH;
+  if(keyboard->is_keytoggle(key)) return KEY_HOLD;
+  if(keyboard->is_keyoff(key)) return KEY_RELEASE;
+}
+
+/* Other */
+std::string Api::GetCurrentScriptDirectory(){
+  char buf[256];
+  getcwd(buf,256);
+  std::string path = buf;
+  return path;
+}
+
+/* Unofficial API (hidden) */
+void Api::RenderClear(){
+  SDL_RenderClear(Window::renderer);
+}
+void Api::RenderPresent(){
+  SDL_RenderPresent(Window::renderer);
 }

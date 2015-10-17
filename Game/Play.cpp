@@ -7,6 +7,8 @@
 #include "Window.hpp"
 #include "Player.hpp"
 
+#include "test/player_test.hpp"
+
 Play::Play(){
   api = Api::instance();
   keyboard = Keyboard::instance();
@@ -17,20 +19,26 @@ Play::Play(){
   SDL_Surface* image = obj_back->get_image();
   api->SetGraphicRect(obj_back,0,0,image->w,image->h);
   player = new Player();
+  p_test = new player_test(player);
+  p_test->Initialize();
 }
 
 Play::~Play(){
   delete obj_back;
   delete player;
+  delete p_test;
 }
 
 void Play::update(Game* parent){
   player->update();
+  p_test->MainLoop();
 }
 void Play::draw(){
-  SDL_Surface* image = obj_back->get_image();
+  api->RenderClear();
   api->DrawGraphic(obj_back,0,0);
   player->draw();
+  p_test->DrawLoop();
+  api->RenderPresent();
 }
 
 bool Play::in_monitor(int x,int y){

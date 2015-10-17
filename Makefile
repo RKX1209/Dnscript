@@ -1,7 +1,8 @@
 OBJS		=		Main.o Dnscript.o Title.o Select.o Game.o \
 						Event.o Keyboard.o Api.o\
 						Game/Load.o Game/Clear.o Game/Play.o Game/Menu.o Game/Player.o\
-						Game/Bullet.o
+						Game/Bullet.o\
+						test/player_test.o
 
 CURPATH = 	$(shell pwd)
 INCLUDE =		$(CURPATH)/include
