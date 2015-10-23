@@ -49,17 +49,24 @@ void Enemy::shoot(int x,int y,double speed,
 }
 void Enemy::update(){
   int now_frame = frame->get_frame();
-  Action action = action_list->get_action(now_frame);
-  if(action.get_type() == Action::TYPE_MOVE){
-    set_state(STATE_MOVE);
-    move_frame = action.get_move_frame();
-  }
-  else if(action.get_type() == Action::TYPE_SHOOT){
-    set_state(STATE_SHOOT);
-  }
-  else{
-  }
+  while(true){
+    Action action = action_list->get_action(now_frame);
+    if(action.get_type() == Action::TYPE_MOVE){
+      set_state(STATE_MOVE);
+      move_frame = action.get_move_frame();
+    }
+    else if(action.get_type() == Action::TYPE_SHOOT){
+      set_state(STATE_SHOOT);
+    }
+    else{
+      break;
+    }
 
+    if(is_state(STATE_SHOOT)){
+      action.get_bullet()->shoot();
+      remove_state(STATE_SHOOT);
+    }
+  }
   if(is_state(STATE_MOVE)){
     if(move_frame > 0){
       obj_pos->x += dx;
@@ -69,10 +76,7 @@ void Enemy::update(){
       remove_state(STATE_MOVE);
     }
   }
-  if(is_state(STATE_SHOOT)){
-    action.get_bullet()->shoot();
-    remove_state(STATE_SHOOT);
-  }
+  
   for(int i = 0; i < bullet_num; i++){
     if(!bullets[i]->available()){
       bullets[i]->update();

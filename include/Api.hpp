@@ -45,6 +45,8 @@ public:
   int GetSpeedY(Object*);
   int GetX(Object*);
   int GetY(Object*);
+  int GetW(Object*);
+  int GetH(Object*);  
   int GetCenterX();
   int GetCenterY();
 

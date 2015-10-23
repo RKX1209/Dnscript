@@ -96,6 +96,12 @@ int Api::GetX(Object* target){
 int Api::GetY(Object* target){
   return target->get_y();
 }
+int Api::GetW(Object* target){
+  return target->get_width();
+}
+int Api::GetH(Object* target){
+  return target->get_height();
+}
 int Api::GetCenterX(){
   return Play::win_rect.w / 2;
 }

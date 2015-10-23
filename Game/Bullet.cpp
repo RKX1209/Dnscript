@@ -24,8 +24,10 @@ Bullet::~Bullet(){
 
 void Bullet::update(){
   if(Play::in_monitor(x,y)){
-    x += speed * cos(angle * M_PI / 180.0);
-    y += speed * sin(angle * M_PI / 180.0);
+    double tx = speed * cos(angle * M_PI / 180.0) * 100;
+    double ty = speed * sin(angle * M_PI / 180.0) * 100;
+    x = (x * 100 + tx) / 100;
+    y = (y * 100 + ty) / 100;
   }else{
     state = STATE_NONE;
   }

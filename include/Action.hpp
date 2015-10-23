@@ -48,6 +48,10 @@ public:
     if(actions.find(_f) == actions.end()){
       return Action(Action::TYPE_NONE);
     }
+    if(actions[_f].empty()){
+      return Action(Action::TYPE_NONE);
+    }
+    
     Action res = actions[_f].front();
     actions[_f].pop_front();
     return res;

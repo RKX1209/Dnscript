@@ -18,7 +18,7 @@ public:
 private:
   Api* api;
   Keyboard* keyboard;
-  static const int bullet_num = 400;
+  static const int bullet_num = 500;
   std::vector<Bullet*>bullets;
   unsigned int state;
   Frame* frame;
