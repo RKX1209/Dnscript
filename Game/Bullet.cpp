@@ -8,14 +8,14 @@
 Bullet::Bullet(){
   api = Api::instance();
   obj_back = new Object();
-  std::string filename("img/bullet.png");
+
+  state = STATE_NONE;
+  id = 1;
+  std::string filename("img/bullets.png");
   obj_back = new Object();
   api->LoadGraphic(obj_back,filename);
   api->SetTexture(obj_back,filename);
-  SDL_Surface* image = obj_back->get_image();
-  api->SetGraphicRect(obj_back,1,1,31,31);
-  state = STATE_NONE;
-  id = 1;
+  set_type(TYPE_NORMAL,RED);
 }
 
 Bullet::~Bullet(){
@@ -33,7 +33,7 @@ void Bullet::update(){
 void Bullet::draw(){
   api->DrawGraphic(obj_back,x,y);
 }
-void Bullet::shoot(int x,int y,
+void Bullet::set_state(int x,int y,
                   double speed,double angle,double damage,
                   int pene){
   this->x = x;
@@ -42,7 +42,22 @@ void Bullet::shoot(int x,int y,
   this->angle = angle;
   this->damage = damage;
   this->pene = pene;
+}
+void Bullet::shoot(){
   state = STATE_SHOT;
+}
+void Bullet::reserve(){
+  state = STATE_RESERVE;
+}
+void Bullet::set_type(Type _type,Color _color){
+  type = _type;
+  color = _color;
+  load_data(type,color);
+}
+void Bullet::load_data(Type _type,Color _color){
+  /* FIXME: These datas must separeted from source code. */
+  int size = 20;
+  api->SetGraphicRect(obj_back,(int)color * size,0,((int)color + 1) * size,size);
 }
 
 bool Bullet::available(){

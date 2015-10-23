@@ -4,7 +4,7 @@
 #include <string>
 #include <SDL.h>
 #include <SDL_image.h>
-
+#include "Bullet.hpp"
 /* ### Singleton class ### */
 class Object;
 class Keyboard;
@@ -31,6 +31,7 @@ public:
   void SetTexture(Object*,std::string);
   void SetGraphicRect(Object*,Uint32,Uint32,Uint32,Uint32);
   void SetGraphicPos(Object*,Uint32,Uint32,Uint32,Uint32);
+  void SetGraphicAngle(Object*,Uint32);
   void DrawGraphic(Object*,Uint32,Uint32);
 
   /* Status */
@@ -40,10 +41,16 @@ public:
   void SetY(Object*,int);
   int GetPlayerX(Object*);
   int GetPlayerY(Object*);
+  int GetSpeedX(Object*);
+  int GetSpeedY(Object*);
+  int GetX(Object*);
+  int GetY(Object*);
+  int GetCenterX();
+  int GetCenterY();
 
   /* Danmaku */
   void CreatePlayerShot01(Object*,int,int,double,double,double,int,int);
-  void CreateShot01(Object*,int,int,double,double,int,int);
+  void CreateShot01(Object*,int,int,double,double,Bullet::Color,int);
   /* Action */
   void SetMovePosition02(Object*,int,int,int);
   /* Keyboard */

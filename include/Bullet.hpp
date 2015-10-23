@@ -4,12 +4,27 @@
 #include <SDL.h>
 
 class Api;
-
+class Object;
 class Bullet{
 public:
+  enum Type{
+    TYPE_NORMAL,
+    TYPE_BOMB,
+  };
   enum State{
     STATE_SHOT,
+    STATE_RESERVE,
     STATE_NONE,
+  };
+  enum Color{
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    PURPLE,
+    LIGHT_BLUE,
+    GRAY,
+    ORANGE,
   };
 private:
   Api* api;
@@ -22,6 +37,8 @@ private:
   double damage;
   int pene;
   State state;
+  Type type;
+  Color color;
 public:
   Object* obj_back;
   Bullet();
@@ -30,7 +47,11 @@ public:
   void draw();
   bool available();
   int get_id();
-  void shoot(int,int,double,double,double,int);
+  void shoot();
+  void reserve();
+  void set_state(int,int,double,double,double,int);
+  void set_type(Type,Color);
+  void load_data(Type,Color);
 };
 
 #endif

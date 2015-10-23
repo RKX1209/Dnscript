@@ -6,6 +6,7 @@
 #include "Player.hpp"
 #include "Bullet.hpp"
 #include "Window.hpp"
+#include "Play.hpp"
 
 Player::Player() : speed(0),life(0),bomb_num(0),graze(0){
   api = Api::instance();
@@ -14,8 +15,8 @@ Player::Player() : speed(0),life(0),bomb_num(0),graze(0){
   for(int i = 0; i < bullet_num; i++){
     bullets[i] = new Bullet();
   }
-  x = Window::win_rect.w / 2;
-  y = 10;
+  obj_pos->x = Play::win_rect.w / 2;
+  obj_pos->y = Play::win_rect.h - obj_rect->h - 10;
 }
 
 Player::~Player(){
@@ -28,7 +29,8 @@ void Player::shoot(int x,int y,
                   int pene,int id){
   for(int i = 0; i < bullet_num; i++){
     if(bullets[i]->available() && bullets[i]->get_id() == id){
-      bullets[i]->shoot(x,y,speed,angle,damage,pene);
+      bullets[i]->set_state(x,y,speed,angle,damage,pene);
+      bullets[i]->shoot();
       //printf("shoot %d\n",i);
       break;
     }
@@ -46,18 +48,20 @@ void Player::update(){
 }
 
 void Player::move(){
-  int dx = 0; int dy = 0;
+  dx = 0; dy = 0;
   if(keyboard->is_keyon(SDLK_LEFT)){
     dx = -speed;
   }else if(keyboard->is_keyon(SDLK_RIGHT)){
     dx = speed;
-  }else if(keyboard->is_keyon(SDLK_UP)){
+  }
+  if(keyboard->is_keyon(SDLK_UP)){
     dy = -speed;
   }else if(keyboard->is_keyon(SDLK_DOWN)){
     dy = speed;
   }
-  x += dx;
-  y += dy;
+  if(!Play::in_monitor(obj_pos->x + dx,obj_pos->y + dy)) return;
+  obj_pos->x += dx;
+  obj_pos->y += dy;
 }
 
 void Player::draw(){

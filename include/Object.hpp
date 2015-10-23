@@ -2,8 +2,10 @@
 #define __OBJECT_HPP__
 
 #include <SDL.h>
-
+#include "Bullet.hpp"
+#include "Action.hpp"
 class Texture;
+class Bullet;
 class Object{
 private:
   SDL_Surface* image;
@@ -11,18 +13,23 @@ private:
 protected:
   SDL_Rect* obj_rect;
   SDL_Rect* obj_pos;
-  int x;
-  int y;
-  int w;
-  int h;
+  int dx;
+  int dy;
+  ActionList* action_list;
 public:
-  Object() : x(0),y(0){
+  Object(){
     obj_rect = new SDL_Rect;
     obj_pos = new SDL_Rect;
+    obj_pos->x = 0;
+    obj_pos->y = 0;
+    obj_pos->w = 0;
+    obj_pos->h = 0;
+    action_list = new ActionList();
   }
   ~Object(){
     delete obj_rect;
     delete obj_pos;
+    delete action_list;
     SDL_FreeSurface(image);
     SDL_DestroyTexture(texture);
   }
@@ -46,11 +53,17 @@ public:
     obj_pos->w = obj_rect->w;
     obj_pos->h = obj_rect->h;
   }
+  int get_dx(){ return dx; }
+  int get_dy(){ return dy; }
   virtual void shoot(int,int,double,double,double,int,int){}
+  virtual void shoot(int,int,double,double,double,int,Bullet::Color,int){}
+  virtual void start_move(int,int,int){}
   virtual void set_x(int){}
   virtual void set_y(int){}
-  virtual int get_x(){ return x; }
-  virtual int get_y(){ return y; }
+  virtual int get_x(){ return obj_pos->x; }
+  virtual int get_y(){ return obj_pos->y; }
+  virtual int get_width(){ return obj_pos->w; }
+  virtual int get_height(){ return obj_pos->h; }
   virtual void set_speed(int){}
   virtual void set_life(int){}
   virtual void set_bomb_num(int){}

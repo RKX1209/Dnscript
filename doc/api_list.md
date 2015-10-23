@@ -9,7 +9,9 @@ filenameで指定された画像データを破棄する
 filenameで指定された画像データをテクスチャに設定する
 ### SetGraphicRect(sx,sy,dx,dy) *
 左上,右下のテクスチャ座標で指定された長方形の描画範囲を設定する
-### DrawGraphic(x,y) -
+### SetGraphicAngle(angle)
+グラフィックをangle度回転させる
+### DrawGraphic(x,y) *
 指定されたスクリーン座標を中心として描画する
 
 ## Status
@@ -34,6 +36,18 @@ y座標を設定する
 プレイヤーのx座標を取得する
 ### GetPlayerY() [プレイヤーのみ]*
 プレイヤーのy座標を取得する
+### GetSpeedX() *
+x方向の速さdxを取得する
+### GetSpeedY() *
+y方向の速さdyを取得する
+### GetX() *
+現在のx座標を取得する
+### GetY() *
+現在のx座標を取得する
+### GetCenterX() *
+マップの中心座標xを取得する
+### GetCenterY() *
+マップの中心座標yを取得する
 
 
 ## Danmaku
@@ -49,10 +63,10 @@ colorは弾の色,delayは初弾が発射されるまでの遅延フレーム数
 座標(x,y)にframeフレームかけて移動する
 
 ## Keyboard 
-### GetKeyState(key) -
+### GetKeyState(key) *
 指定したキーのステータスを返す
 (KEY_PUSH,KEY_HOLD)
 ## Other
-### GetCurrentScriptDirectory() -
+### GetCurrentScriptDirectory() *
 現在のディレクトリパスを取得する
 

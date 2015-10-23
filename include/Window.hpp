@@ -5,6 +5,7 @@
 #include "Event.hpp"
 #include "Keyboard.hpp"
 #include "Dnscript.hpp"
+#include "Frame.hpp"
 
 class Window{
 public:
@@ -17,6 +18,7 @@ public:
   static Dnscript* dnscript;
   static Event* event;
   static Keyboard* keyboard;
+  static Frame* frame;
 
   Window(void) { ; }
 
@@ -26,11 +28,15 @@ public:
         SDL_CreateWindowAndRenderer(win_rect.w, win_rect.h,0,&window,&renderer);
         Event::create();
         Keyboard::create();
+        Frame::create();
         event = Event::instance();
         keyboard = Keyboard::instance();
+        frame = Frame::instance();
       }catch(char *error){
         fprintf(stderr,"%s\n",error);
         Event::destroy();
+        Keyboard::destroy();
+        Frame::destroy();
         abort();
       }
   }
@@ -46,6 +52,7 @@ public:
   static void quit(void){
     Event::destroy();
     Keyboard::destroy();
+    Frame::destroy();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -81,6 +88,7 @@ public:
     while (polling_event()) {
       update();
       draw();
+      frame->count_up();
       SDL_Delay((Uint32)timer_wait_mil);
     }
     quit();

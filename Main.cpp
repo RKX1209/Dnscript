@@ -12,12 +12,13 @@ Dnscript* Window::dnscript;
 const char* Window::win_title = "Dnscript ver 1.0";
 Event* Window::event;
 Keyboard* Window::keyboard;
+Frame* Window::frame;
 
 /* entry point */
 int main(int argc,char *argv[]){
   Window::win_rect.x = 100;
   Window::win_rect.y = 100;
-  Window::win_rect.w = 700;
+  Window::win_rect.w = 900;
   Window::win_rect.h = 600;
   Window::init();
   Window::dnscript = new Dnscript();

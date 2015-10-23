@@ -8,16 +8,14 @@
 /* Script test */
 player_test::player_test(Player* _player){
   api = Api::instance();
-  bNextShot = false;
-  shotCount = 0;
   player = _player;
 }
 player_test::~player_test(){
 }
 
 void player_test::Initialize(){
-  int shotCount = -1;
-  bool bNextShot = false;
+  shotCount = -1;
+  bNextShot = false;
   std::string current = api->GetCurrentScriptDirectory();
   std::string imgRumia = current + "/img/Rumia.png";
   printf("%s\n",imgRumia.c_str());
@@ -28,7 +26,7 @@ void player_test::Initialize(){
   api->SetTexture(player,imgRumia);
 }
 void player_test::MainLoop(){
-/*  if((api->GetKeyState(SDLK_z) == Api::KEY_PUSH ||
+  if((api->GetKeyState(SDLK_z) == Api::KEY_PUSH ||
       api->GetKeyState(SDLK_z) == Api::KEY_HOLD || bNextShot==true)
       && shotCount==-1){
   			shotCount = 0;
@@ -37,20 +35,18 @@ void player_test::MainLoop(){
   if(api->GetKeyState(SDLK_z) == Api::KEY_HOLD && shotCount>0){
   			bNextShot = true;
   }
-  if(api->GetKeyState(SDLK_LEFT) == Api::KEY_PUSH || api->GetKeyState(SDLK_LEFT) == Api::KEY_HOLD){*/
-    if(shotCount % 5 == 0){
-      api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 255, 1.3, 1, 1);
-  		api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 265, 1.5, 2, 1);
-  		api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 270, 1.7, 3, 1);
-  		api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 275, 1.5, 2, 1);
-  		api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 285, 1.3, 1, 1);
-    }
-  //}
+  if(shotCount % 5 == 0){
+    api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 255, 1.3, 1, 1);
+  	api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 265, 1.5, 2, 1);
+  	api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 270, 1.7, 3, 1);
+  	api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 275, 1.5, 2, 1);
+  	api->CreatePlayerShot01(player,api->GetPlayerX(player), api->GetPlayerY(player), 15, 285, 1.3, 1, 1);
+  }
   if(shotCount >= 0){
   	shotCount++;
   }
   if(shotCount == 30){
-  	shotCount=0;
+  	shotCount=-1;
   }
 }
 void player_test::DrawLoop(){

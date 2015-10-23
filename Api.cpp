@@ -2,10 +2,12 @@
 #include <string>
 #include <cstdio>
 #include <unistd.h>
+#include <SDL2_rotozoom.h>
 #include "Object.hpp"
 #include "Api.hpp"
 #include "Dnscript.hpp"
 #include "Window.hpp"
+#include "Play.hpp"
 
 
 Api* Api::mInstance = 0;
@@ -50,6 +52,11 @@ void Api::SetGraphicRect(Object* target,Uint32 sx,Uint32 sy,Uint32 dx,Uint32 dy)
   target->set_obj_rect(sx,sy,width,height);
 }
 
+void Api::SetGraphicAngle(Object* target,Uint32 angle){
+  rotozoomSurface(target->get_image(),angle,1,1);
+  SetTexture(target,"dummy"); //rebind
+}
+
 void Api::DrawGraphic(Object* target,Uint32 x,Uint32 y){
   target->set_obj_pos(x,y);
   SDL_Renderer* renderer = Window::renderer;
@@ -77,6 +84,24 @@ int Api::GetPlayerX(Object* target){
 int Api::GetPlayerY(Object* target){
   return target->get_y();
 }
+int Api::GetSpeedX(Object* target){
+  return target->get_dx();
+}
+int Api::GetSpeedY(Object* target){
+  return target->get_dy();
+}
+int Api::GetX(Object* target){
+  return target->get_x();
+}
+int Api::GetY(Object* target){
+  return target->get_y();
+}
+int Api::GetCenterX(){
+  return Play::win_rect.w / 2;
+}
+int Api::GetCenterY(){
+  return Play::win_rect.h / 2;
+}
 
 /* Danmaku */
 void Api::CreatePlayerShot01(Object* target,int x,int y,
@@ -85,13 +110,13 @@ void Api::CreatePlayerShot01(Object* target,int x,int y,
   target->shoot(x,y,speed,angle,damage,pene,id);
 }
 void Api::CreateShot01(Object* target,int x,int y,
-                      double speed,double angle,int color,int delay){
-
+                      double speed,double angle,Bullet::Color color,int delay){
+  target->shoot(x,y,speed,angle,999999,10000,color,delay);
 }
 
 /* Action */
 void Api::SetMovePosition02(Object* target,int x,int y,int frame){
-
+  target->start_move(x,y,frame);
 }
 
 /* Keyboard */
