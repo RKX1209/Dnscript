@@ -96,6 +96,12 @@ int Api::GetX(Object* target){
 int Api::GetY(Object* target){
   return target->get_y();
 }
+int Api::GetMX(Object* target){
+  return target->get_mx();
+}
+int Api::GetMY(Object* target){
+  return target->get_my();
+}
 int Api::GetW(Object* target){
   return target->get_width();
 }
@@ -120,6 +126,10 @@ void Api::CreateShot01(Object* target,int x,int y,
   target->shoot(x,y,speed,angle,999999,10000,color,delay);
 }
 
+/* SpellCard */
+void Api::CutIn(Object* target,std::string label,std::string img,int x1,int y1,int x2,int y2){
+  target->CutIn(label,img,x1,y1,x2,y2);
+}
 /* Action */
 void Api::SetMovePosition02(Object* target,int x,int y,int frame){
   target->start_move(x,y,frame);

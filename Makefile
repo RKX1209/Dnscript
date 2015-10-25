@@ -1,6 +1,6 @@
 DEBUG		=  1
 OBJS		=		Main.o Dnscript.o Title.o Select.o Game.o \
-						Event.o Keyboard.o Api.o Frame.o\
+						Event.o Keyboard.o Api.o Frame.o Object.o\
 						Game/Load.o Game/Clear.o Game/Play.o Game/Menu.o Game/Player.o\
 						Game/Bullet.o Game/Enemy.o\
 						test/player_test.o test/enemy_test.o

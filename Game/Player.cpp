@@ -11,6 +11,7 @@
 Player::Player() : speed(0),life(0),bomb_num(0),graze(0){
   api = Api::instance();
   keyboard = Keyboard::instance();
+  obj_cutin = new Object();
   bullets.resize(bullet_num);
   for(int i = 0; i < bullet_num; i++){
     bullets[i] = new Bullet();
@@ -20,6 +21,7 @@ Player::Player() : speed(0),life(0),bomb_num(0),graze(0){
 }
 
 Player::~Player(){
+  delete obj_cutin;
   for(int i = 0; i < bullet_num; i++){
     delete bullets[i];
   }
@@ -44,7 +46,8 @@ void Player::update(){
     }
   }
   move();
-
+  if(is_state(STATE_CUTIN)){
+  }
 }
 
 void Player::move(){
@@ -63,6 +66,14 @@ void Player::move(){
   obj_pos->x += dx;
   obj_pos->y += dy;
 }
+void Player::CutIn(std::string label,std::string img,
+                    int x1,int y1,int x2,int y2){
+  api->LoadGraphic(obj_cutin,img);
+  api->SetTexture(obj_cutin,img);
+                      printf("cutin\n");
+  api->SetGraphicRect(obj_cutin,x1,y1,x2,y2);
+  set_state(STATE_CUTIN);
+}
 
 void Player::draw(){
   for(int i = 0; i < bullet_num; i++){
@@ -70,4 +81,17 @@ void Player::draw(){
       bullets[i]->draw();
     }
   }
+  if(is_state(STATE_CUTIN)){
+      api->DrawGraphic(obj_cutin,20,100);
+  }
+}
+
+void Player::set_state(State _s){
+  state |= (unsigned int)_s;
+}
+void Player::remove_state(State _s){
+  state &= ~((unsigned int)_s);
+}
+bool Player::is_state(State _s){
+  return (state & (unsigned int)_s);
 }

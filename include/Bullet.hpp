@@ -46,6 +46,7 @@ public:
   void update();
   void draw();
   bool available();
+  bool is_shoot();
   int get_id();
   void shoot();
   void reserve();

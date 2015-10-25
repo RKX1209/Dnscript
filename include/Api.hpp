@@ -45,14 +45,18 @@ public:
   int GetSpeedY(Object*);
   int GetX(Object*);
   int GetY(Object*);
+  int GetMX(Object*);
+  int GetMY(Object*);
   int GetW(Object*);
-  int GetH(Object*);  
+  int GetH(Object*);
   int GetCenterX();
   int GetCenterY();
 
   /* Danmaku */
   void CreatePlayerShot01(Object*,int,int,double,double,double,int,int);
   void CreateShot01(Object*,int,int,double,double,Bullet::Color,int);
+  /* SpellCard */
+  void CutIn(Object*,std::string,std::string,int,int,int,int);
   /* Action */
   void SetMovePosition02(Object*,int,int,int);
   /* Keyboard */

@@ -39,6 +39,8 @@ public:
   void set_y(int _y){ obj_pos->y = _y; }
   int get_x(){ return obj_pos->x; }
   int get_y(){ return obj_pos->y; }
+  int get_mx(){ return mx; }
+  int get_my(){ return my; }  
   int get_width(){ return obj_rect->w; }
   int get_height(){ return obj_rect->h; }
   void set_speed(int _speed){ speed = _speed; }

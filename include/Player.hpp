@@ -2,6 +2,7 @@
 #define __PLAYER_HPP__
 
 #include <vector>
+#include <string>
 #include "Object.hpp"
 
 class Object;
@@ -9,9 +10,15 @@ class Api;
 class Keyboard;
 class Bullet;
 class Player : public Object{
+public:
+  enum State{
+    STATE_CUTIN = 1,
+  };
 private:
   Api* api;
   Keyboard* keyboard;
+  Object* obj_cutin;
+  unsigned int state;
   static const int bullet_num = 40;
   std::vector<Bullet*>bullets;
   int speed;
@@ -35,6 +42,11 @@ public:
   void set_life(int _life){ life = _life; }
   void set_bomb_num(int _bnum){ bomb_num = _bnum; }
   void set_graze(int _graze){ graze = _graze; }
+  void CutIn(std::string,std::string,int,int,int,int);
+  void set_state(State);
+  void remove_state(State);
+  bool is_state(State);
+  void clear_state(){ state = 0; }
 };
 
 #endif

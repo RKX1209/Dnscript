@@ -65,6 +65,9 @@ void Bullet::load_data(Type _type,Color _color){
 bool Bullet::available(){
   return state == STATE_NONE;
 }
+bool Bullet::is_shoot(){
+  return state == STATE_SHOT;
+}
 int Bullet::get_id(){
   return id;
 }

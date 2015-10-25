@@ -10,7 +10,7 @@
 enemy_test::enemy_test(Enemy* _enemy){
   api = Api::instance();
   enemy = _enemy;
-  count = 0;
+  count = 1;
   cx = api->GetCenterX();
   imgAngle = 10;
   shotAngle = 0;
@@ -28,21 +28,23 @@ void enemy_test::Initialize(){
   api->SetLife(enemy,1500);
   api->SetGraphicRect(enemy,1,1,32,32);
   api->SetTexture(enemy,imgEnemy);
-  api->SetMovePosition02(enemy,cx + 0,150,30);
+  api->SetMovePosition02(enemy,cx + 0,api->GetCenterY(),30);
 }
 void enemy_test::MainLoop(){
-  if(count % 10 == 0){
-    for(int angle = 0; angle < 360; angle += 20){
-    //  if(angle == 90) continue;
-      api->CreateShot01(enemy,api->GetX(enemy) + api->GetW(enemy) / 2,api->GetY(enemy) + api->GetH(enemy) / 2,10,angle,Bullet::RED,10);
-      //api->CreateShot01(enemy,api->GetX(enemy),api->GetY(enemy),5,angle,Bullet::YELLOW,5);
+  if(count >= 30){
+    if(count%720==0&&count<4000){
+    		api->SetMovePosition02(enemy,cx-50,100,20);
     }
-  }
-  if(count%720==0&&count<4000){
-  		api->SetMovePosition02(enemy,cx-50,100,30);
-  }
-  if(count%720==360&&count<4000){
-  		api->SetMovePosition02(enemy,cx+50,100,30);
+    if(count%720==360&&count<4000){
+    		api->SetMovePosition02(enemy,cx+50,100,20);
+    }
+    if(count % 10 == 0){
+      for(int angle = 0; angle < 360; angle += 20){
+        api->CreateShot01(enemy,api->GetX(enemy) + api->GetW(enemy) / 2,api->GetY(enemy) + api->GetH(enemy) / 2,10,angle,Bullet::RED,1);
+        //api->CreateShot01(enemy,api->GetX(enemy),api->GetY(enemy),5,angle,Bullet::YELLOW,3);
+      }
+    }
+
   }
   count++;
 }

@@ -53,13 +53,17 @@ y方向の速さdyを取得する
 ## Danmaku
 ### CreatePlayerShot01(x,y,speed,angle,damage,pene,id) ［プレイヤーのみ] -
 座標(x,y)から速度speed,角度angle,貫通力peneの弾(id値で指定)を1発打つ
-### CreateShot01(x,y,speed,angle,color,delay)
+### CreateShot01(x,y,speed,angle,color,delay) *
 座標(x,y)から速度speed,角度angleの弾を1発打つ
 colorは弾の色,delayは初弾が発射されるまでの遅延フレーム数
 
+## SpellCard
+### CutIn(name,img,x1,y1,x2,y2)
+ラベルnameのカットインを表示する
+imgは表示画像,(x1,y1)(x2,y2)は描画元矩形
 
 ## Action
-### SetMovePosition02(x,y,frame)
+### SetMovePosition02(x,y,frame) *
 座標(x,y)にframeフレームかけて移動する
 
 ## Keyboard 

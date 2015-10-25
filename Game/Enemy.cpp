@@ -39,7 +39,6 @@ void Enemy::shoot(int x,int y,double speed,
         bullets[i]->set_type(Bullet::TYPE_NORMAL,color);
         bullets[i]->set_state(x,y,speed,angle,damage,pene);
         bullets[i]->reserve();
-        //printf("reserve %d\n",i);
         Action sh_act(Action::TYPE_SHOOT);
         sh_act.set_bullet(bullets[i]);
         action_list->add_action(frame->get_next_frame(delay),sh_act);//lazy shoot
@@ -49,6 +48,7 @@ void Enemy::shoot(int x,int y,double speed,
 }
 void Enemy::update(){
   int now_frame = frame->get_frame();
+  //printf("%d\n",now_frame);
   while(true){
     Action action = action_list->get_action(now_frame);
     if(action.get_type() == Action::TYPE_MOVE){
@@ -76,9 +76,9 @@ void Enemy::update(){
       remove_state(STATE_MOVE);
     }
   }
-  
+
   for(int i = 0; i < bullet_num; i++){
-    if(!bullets[i]->available()){
+    if(bullets[i]->is_shoot()){
       bullets[i]->update();
     }
   }
@@ -86,9 +86,11 @@ void Enemy::update(){
 }
 
 void Enemy::start_move(int x,int y,int fr){
-  dx = (x - obj_pos->x) / fr;
-  dy = (y - obj_pos->y) / fr;
-
+  mx = x;
+  my = y;
+  dx = (mx - obj_pos->x) / fr;
+  dy = (my - obj_pos->y) / fr;
+//printf("%d,%d\n",dx,dy);
   Action move_act(Action::TYPE_MOVE);
   move_act.set_move(x,y,dx,dy,fr);
   action_list->add_action(frame->get_frame() + 2,move_act); //move immediately
@@ -97,7 +99,7 @@ void Enemy::start_move(int x,int y,int fr){
 
 void Enemy::draw(){
   for(int i = 0; i < bullet_num; i++){
-    if(!bullets[i]->available()){
+    if(bullets[i]->is_shoot()){
       bullets[i]->draw();
     }
   }

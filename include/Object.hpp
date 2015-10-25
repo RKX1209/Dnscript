@@ -15,6 +15,8 @@ protected:
   SDL_Rect* obj_pos;
   int dx;
   int dy;
+  int mx;
+  int my;
   ActionList* action_list;
 public:
   Object(){
@@ -62,12 +64,15 @@ public:
   virtual void set_y(int){}
   virtual int get_x(){ return obj_pos->x; }
   virtual int get_y(){ return obj_pos->y; }
+  virtual int get_mx(){};
+  virtual int get_my(){};
   virtual int get_width(){ return obj_pos->w; }
   virtual int get_height(){ return obj_pos->h; }
   virtual void set_speed(int){}
   virtual void set_life(int){}
   virtual void set_bomb_num(int){}
   virtual void set_graze(int){}
+  virtual void CutIn(std::string,std::string,int,int,int,int){}
 };
 
 #endif

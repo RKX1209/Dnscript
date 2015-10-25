@@ -17,7 +17,8 @@ void player_test::Initialize(){
   shotCount = -1;
   bNextShot = false;
   std::string current = api->GetCurrentScriptDirectory();
-  std::string imgRumia = current + "/img/Rumia.png";
+  //std::string imgRumia = current + "/img/Rumia.png";
+  std::string imgRumia = current + "/img/Reimu.png";
   printf("%s\n",imgRumia.c_str());
   //std::string imgRumiaCutIn = current + "img/RumiaCutIn.png";
 
@@ -31,6 +32,10 @@ void player_test::MainLoop(){
       && shotCount==-1){
   			shotCount = 0;
   			bNextShot = false;
+  }
+  if(api->GetKeyState(SDLK_x) == Api::KEY_PUSH ||
+    api->GetKeyState(SDLK_x) == Api::KEY_HOLD){
+      this->SpellCard();
   }
   if(api->GetKeyState(SDLK_z) == Api::KEY_HOLD && shotCount>0){
   			bNextShot = true;
@@ -49,13 +54,18 @@ void player_test::MainLoop(){
   	shotCount=-1;
   }
 }
+void player_test::SpellCard(){
+  std::string current = api->GetCurrentScriptDirectory();
+  api->CutIn(player,"Test",current + "/img/CutinReimu.png",0,0,256,256);
+}
+
 void player_test::DrawLoop(){
   if(api->GetKeyState(SDLK_LEFT) == Api::KEY_PUSH || api->GetKeyState(SDLK_LEFT) == Api::KEY_HOLD){
-    api->SetGraphicRect(player,1, 133, 49, 188);
+    api->SetGraphicRect(player,1, 51, 50, 100);
 	}else if(api->GetKeyState(SDLK_RIGHT) == Api::KEY_PUSH || api->GetKeyState(SDLK_RIGHT) == Api::KEY_HOLD){
-		api->SetGraphicRect(player,1, 69, 49, 124);
+		api->SetGraphicRect(player,1, 101, 50, 150);
 	}else {
-		api->SetGraphicRect(player,1, 5, 49, 60);
+		api->SetGraphicRect(player,1, 1, 50, 50);
 	}
   //printf("(%d,%d)\n",api->GetPlayerX(player),api->GetPlayerY(player));
 	api->DrawGraphic(player,api->GetPlayerX(player), api->GetPlayerY(player));

@@ -12,5 +12,5 @@ public:
   void Initialize();
   void MainLoop();
   void DrawLoop();
-
+  void SpellCard();
 };
