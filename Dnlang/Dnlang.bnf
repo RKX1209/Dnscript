@@ -1,0 +1,99 @@
+<translation_unit>  ::=    <external_decl>
+                      |    <translation_unit> <external_decl>
+<external_decl>     ::=    <function_def>
+                      |    <decl>
+<function_def>      ::=    <decl_specs> <declarator> <compound_stat>
+<decl>              ::=    <decl_specs> <init_decl_list> ";"
+                      |    <decl_specs>
+<decl_specs>        ::=    <func_spec>
+                      |    <type_spec>
+                      |    <type_spec> <decl_specs>
+<func_spec>         ::=    "function"
+<type_spec>         ::=    "let"
+<init_decl_list>    ::=    <init_decl>
+                      |    <init_decl_list> "," <init_decl>
+<init_decl>         ::=    <declarator>
+                      |    <declarator> "=" <initializer>
+<declarator>        ::=    <id>
+                      |    <declarator> "(" <id_list> ")"
+                      |    <declarator> "("           ")"
+
+<id_list>           ::=    <id>
+                      |    <id_list> "," <id>
+<initializer>       ::=    <assign_exp>
+<stat>              ::=    <exp_stat>
+                      |    <compound_stat>
+                      |    <selection_stat>
+                      |    <iteration_stat>
+                      |    <jump_stat>
+<exp_stat>          ::=    <exp> ";"
+                      |          ";"
+<compound_stat>     ::=    "{" <dec_list> <stat_list> "}"
+                      |    "{"            <stat_list> "}"
+                      |    "{" <dec_list>             "}"
+                      |    "{"                        "}"
+<stat_list>         ::=    <stat>
+                      |    <stat_list> <stat>
+<selection_stat>    ::=    "if" "(" <exp> ")" <stat>
+                      |    "if" "(" <exp> ")" <stat> "else" <stat>
+                      |    "switch" "(" <exp> ")" <stat>
+<iteration_stat>    ::=    "while" "(" <exp> ")" <stat>
+                      |    "for" "(" <exp> ";" <exp> ";" <exp> ")" <stat>
+<jump_stat>         ::=    "continue" ";"
+                      |    "break" ";"
+                      |    "return" <exp> ";"
+                      |    "return" ";"
+<exp>               ::=    <assign_exp>
+                      |    <exp> "," <assign_exp>
+<assign_exp>        ::=    <conditional_exp>
+                      |    <unary_exp> <assign_operator> <assign_exp>
+<assign_operator>   ::=    "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "&=" | "|=" | "^="
+<conditional_exp>   ::=    <logical_or_exp>
+                      |    <logical_or_exp> "||" <logical_and_exp>
+<logical_and_exp>   ::=    <inclusive_or_exp>
+                      |    <logical_and_exp> "&&" <inclusive_or_exp>
+<inclusive_or_exp>  ::=    <exclusive_or_exp>
+                      |    <inclusive_or_exp> "|" <exclusive_or_exp>
+<exclusive_or_exp>  ::=    <and_exp>
+                      |    <exclusive_or_exp> "^" <and_exp>
+<and_exp>           ::=    <equality_exp>
+                      |    <and_exp> "&" <equality_exp>
+<equality_exp>      ::=    <relational_exp>
+                      |    <equality_exp> "==" <relational_exp>
+                      |    <equality_exp> "!=" <relational_exp>
+<relational_exp>    ::=    <shift_exp>
+                      |    <relational_exp> "<" <shift_exp>
+                      |    <relational_exp> ">" <shift_exp>
+                      |    <relational_exp> "<=" <shift_exp>
+                      |    <relational_exp> ">=" <shift_exp>
+<shift_exp>         ::=    <additive_exp>
+                      |    <shift_exp> "<<" <additive_exp>
+                      |    <shift_exp> ">>" <additive_exp>
+<additive_exp>      ::=    <mult_exp>
+                      |    <additive_exp> "+" <mult_exp>
+                      |    <additive_exp> "-" <mult_exp>
+<mult_exp>          ::=    <unary_exp>
+                      |    <mult_exp> "*" <unary_exp>
+                      |    <mult_exp> "/" <unary_exp>
+                      |    <mult_exp> "%" <unary_exp>
+<unary_exp>         ::=    <postfix_exp>
+                      |    "++" <unary_exp>
+                      |    "--" <unary_exp>
+                      |    <unary_operator> <unary_exp>
+<unary_operator>    ::=    "&" | "+" | "-" | "~" | "!"
+<postfix_exp>       ::=    <primary_exp>
+                      |    <postfix_exp> "[" <exp> "]"
+                      |    <postfix_exp> "(" <argument_exp_list> ")"
+                      |    <postfix_exp> "("  ")"
+                      |    <postfix_exp> "++"
+                      |    <postfix_exp> "--"
+<primary_exp>       ::=    <id>
+                      |    <const>
+                      |    <string>
+                      |    "(" <exp> ")"
+<argument_exp_list> ::=    <assignment_exp>
+                      |    <argument_exp_list> "," <assignment_exp>
+<const>             ::=    <int_const>
+                      |    <char_const>
+                      |    <float_const>
+                      |    <enumeration_const>
