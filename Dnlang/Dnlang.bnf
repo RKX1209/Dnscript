@@ -95,4 +95,12 @@
 <const>             ::=    <int_const>
                       |    <char_const>
                       |    <float_const>
-                      |    <enumeration_const>
+
+D                   ::=    [0-9]          //Decimal
+L                   ::=    [a-zA-Z_]      //Literal
+H                   ::=    [a-fA-F0-9]    //Hexadecimal
+<int_const>         ::=    {D}+
+<char_const>        ::=    ({L}|{D})
+<float_const>       ::=    {D}+"."{D}
+<string>            ::=    {L}({L}|{D})*
+<id>                ::=    {L}({L}|{D})*
