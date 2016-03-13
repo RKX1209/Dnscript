@@ -1,5 +1,6 @@
 #include <string>
 #include <algorithm>
+#include <iostream>
 #include "Lexer.hpp"
 #include "Token.hpp"
 #include "DnLexer.hpp"
@@ -108,6 +109,7 @@ Token DnLexer::nextToken() {
           break;
     }
   }
+  return Token(EOF_TYPE, "<EOF>");
 }
 
 void DnLexer::skipSpaces() {
@@ -126,6 +128,10 @@ bool DnLexer::isChar() {
   return c == '\'' && (p + 2) < input.size() && input[p + 2] == '\'';
 }
 
+bool DnLexer::isSym() {
+  return c == '_' || c == '-' || c == '@' || c == '\\' || c == '.';
+}
+
 bool DnLexer::isFloat() {
   return input.find(".") != std::string::npos;
 }
@@ -135,7 +141,7 @@ bool DnLexer::isString() {
 }
 
 bool DnLexer::isId() {
-  return isLetter();
+  return isLetter() || isSym();
 }
 
 /* TODO: Is it reserved word? It's judged by using binary search. */
@@ -171,14 +177,16 @@ Token DnLexer::FloatConst() {
 
 Token DnLexer::String() {
   std::string buf;
-  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter());
+  consume();
+  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter() || isSym());
+  consume();
   return Token(STRING, buf);
 }
 
 Token DnLexer::Id() {
   std::string buf;
   int resv = -1;
-  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter());
+  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter() || isSym());
   if((resv = isReserved(buf)) != -1){
     /* Is this id reserved word? */
     return Token(2 + resv, buf);

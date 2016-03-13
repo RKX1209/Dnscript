@@ -26,6 +26,7 @@ public:
   bool isChar();
   bool isFloat();
   bool isString();
+  bool isSym();
   bool isId();
   int isReserved(std::string str);
   void skipSpaces();

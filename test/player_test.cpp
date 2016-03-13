@@ -17,7 +17,6 @@ void player_test::Initialize(){
   shotCount = -1;
   bNextShot = false;
   std::string current = api->GetCurrentScriptDirectory();
-  //std::string imgRumia = current + "/img/Rumia.png";
   std::string imgRumia = current + "/img/Reimu.png";
   printf("%s\n",imgRumia.c_str());
   //std::string imgRumiaCutIn = current + "img/RumiaCutIn.png";
