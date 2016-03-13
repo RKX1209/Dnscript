@@ -39,6 +39,8 @@ namespace Dnlang {
 
 const std::string DnLexer::token_names[] = {
   "n/a", "<EOF>",
+  "BREAK", "CONTINUE", "FOR", "FUNCTION", "IF", "LET", "RETURN", "SWITCH",
+  "WHILE",
   "ID", "INTCONST", "CHARCONST", "FLOATCONST", "STRING", "SEMICORON", "COMMA",
   "LBRACKA", "RBRACKA", "LBRACK", "RBRACK", "LBRACKB", "RBRACKB",
   "ASSIGN", "MULASSIGN", "DIVASSIGN", "MODASSIGN", "PLUSASSIGN", "MINUSASSIGN",
@@ -46,8 +48,6 @@ const std::string DnLexer::token_names[] = {
   "OROR", "OR", "ANDAND", "AND", "XOR", "NOT", "PLUS", "MINUS", "MUL", "DIV", "MOD",
   "LESSLESS", "ABOVEABOVE", "PLUSPLUS", "MINUSMINUS", "EQUALEQUAL", "NOTEQUAL",
   "LESS", "LESSEQUAL", "ABOVE", "ABOVEEQUAL",
-  "IF", "ELSE", "SWITCH", "WHILE", "FOR", "CONTINUE", "BREAK", "RETURN",
-  "LET", "FUNCTION",
 };
 
 const std::string DnLexer::reserved[] = {
@@ -90,7 +90,21 @@ Token DnLexer::nextToken() {
           EQUALCON(<, '<', LESS)
         case '>':
           EQUALCON(>, '>', ABOVE)
+        case '\"':
+          /* "hoge" (string) */
+          if(isString()) return String();
+        case '\'':
+          /* 'X' (char) */
+          if(isChar()) return CharConst();
         default:
+          if(isDecimal()) {
+            /* {D} */
+            if(isFloat()) return FloatConst();
+            else return IntConst();
+          }else if(isId()) {
+            /* {L} It could be id or reserved word */
+            return Id();
+          }
           break;
     }
   }
@@ -101,21 +115,75 @@ void DnLexer::skipSpaces() {
 }
 
 bool DnLexer::isLetter() {
-  return 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z';
+  return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
 }
 
 bool DnLexer::isDecimal() {
   return '0' <= c && c <= '9';
 }
+
+bool DnLexer::isChar() {
+  return c == '\'' && (p + 2) < input.size() && input[p + 2] == '\'';
+}
+
+bool DnLexer::isFloat() {
+  return input.find(".") != std::string::npos;
+}
+
+bool DnLexer::isString() {
+  return c == '\"' && input.find("\"", p + 1) != std::string::npos;
+}
+
+bool DnLexer::isId() {
+  return isLetter();
+}
+
 /* TODO: Is it reserved word? It's judged by using binary search. */
-bool DnLexer::isReserved(std::string str) {
+int DnLexer::isReserved(std::string str) {
   int rsize = sizeof(reserved) / sizeof(std::string *);
   for(int i = 0; i < rsize; i++){
-    if(reserved[i] == str) return true;
+    if(reserved[i] == str) return i;
   }
-  return false;
+  return -1;
   /*std::string *pos = std::lower_bound(reserved, reserved + rsize, str);
   return (pos != rsize && *pos == str); */
+}
+
+Token DnLexer::IntConst() {
+  std::string buf;
+  do { buf.append(1, c); consume(); } while(isDecimal());
+  return Token(INTCONST, buf);
+}
+
+Token DnLexer::CharConst() {
+  std::string buf;
+  consume();
+  buf.append(1,c);
+  consume();
+  return Token(CHARCONST, buf);
+}
+
+Token DnLexer::FloatConst() {
+  std::string buf;
+  do { buf.append(1, c); consume(); } while(isDecimal() || c == '.');
+  return Token(FLOATCONST, buf);
+}
+
+Token DnLexer::String() {
+  std::string buf;
+  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter());
+  return Token(STRING, buf);
+}
+
+Token DnLexer::Id() {
+  std::string buf;
+  int resv = -1;
+  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter());
+  if((resv = isReserved(buf)) != -1){
+    /* Is this id reserved word? */
+    return Token(2 + resv, buf);
+  }
+  return Token(ID, buf);
 }
 
 }

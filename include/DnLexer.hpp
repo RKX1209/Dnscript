@@ -6,6 +6,8 @@ class DnLexer : public Lexer {
 public:
   enum {
     EOF_TYPE = 1,
+    BREAK, CONTINUE, FOR, FUNCTION, IF, LET, RETURN, SWITCH,
+    WHILE,
     ID, INTCONST, CHARCONST, FLOATCONST, STRING, SEMICORON, COMMA,
     LBRACKA, RBRACKA, LBRACK, RBRACK, LBRACKB, RBRACKB,
     ASSIGN, MULASSIGN, DIVASSIGN, MODASSIGN, PLUSASSIGN, MINUSASSIGN,
@@ -13,8 +15,6 @@ public:
     OROR, OR, ANDAND, AND, XOR, NOT, PLUS, MINUS, MUL, DIV, MOD,
     LESSLESS, ABOVEABOVE, PLUSPLUS, MINUSMINUS, EQUAL, EQUALEQUAL, NOTEQUAL,
     LESS, LESSEQUAL, ABOVE, ABOVEEQUAL,
-    IF, ELSE, SWITCH, WHILE, FOR, CONTINUE, BREAK, RETURN,
-    LET, FUNCTION,
   };
   static const std::string token_names[];
   static const std::string reserved[];
@@ -23,8 +23,17 @@ public:
   Token nextToken();
   bool isDecimal();
   bool isLetter();
-  bool isReserved(std::string str);
+  bool isChar();
+  bool isFloat();
+  bool isString();
+  bool isId();
+  int isReserved(std::string str);
   void skipSpaces();
+  Token IntConst();
+  Token CharConst();
+  Token FloatConst();
+  Token String();
+  Token Id();
 };
 
 }
