@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <map>
 #include "Token.hpp"
 #include "Lexer.hpp"
 #include "DnLexer.hpp"
@@ -15,11 +16,18 @@
   release(); \
   return success; \
 }
+#define DEFINE_MEMO(x, fp) \
+  bool failed = false; \
+  int startTokenIndex = index(); \
+  if(isSpeculating() && alreadyParsedRule(memos[#x])) return; \
+  try { _##fp } \
+  catch(char *s) { failed = true; throw s; } \
+  if(isSpeculating()) memorize(memos[#x], startTokenIndex, failed); \
 
 namespace Dnlang {
   /* type inference
-     TODO bit ugly. Is there any better solution? */
-void DnParser::TranslationUnit() {
+     XXX bit ugly. Is there any better solution? */
+void DnParser::_TranslationUnit() {
   if(SPECULATE( ExternalDecl(); match(DnLexer::EOF_TYPE); )()) {
     ExternalDecl(); match(DnLexer::EOF_TYPE);
   }
@@ -32,22 +40,12 @@ void DnParser::TranslationUnit() {
     throw error.str();
   }
 }
-void DnParser::ExternalDecl() {
-  if(SPECULATE( FunctionDef(); match(DnLexer::EOF_TYPE); )()) {
-    FunctionDef(); match(DnLexer::EOF_TYPE);
+void DnParser::_ExternalDecl() {
+  if(SPECULATE( FunctionDef(); )()) {
+    FunctionDef();
   }
-  else if(SPECULATE( Decl(); match(DnLexer::EOF_TYPE); )()) {
-    Decl(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::FunctionDef() {
-  if(SPECULATE( DeclSpecs(); Declarator(); CompoundStat(); match(DnLexer::EOF_TYPE); )()) {
-    DeclSpecs(); Declarator(); CompoundStat(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( Decl(); )()) {
+    Decl();
   }
   else {
     std::stringstream error;
@@ -55,12 +53,22 @@ void DnParser::FunctionDef() {
     throw error.str();
   }
 }
-void DnParser::Decl() {
+void DnParser::_FunctionDef() {
+  if(SPECULATE( DeclSpecs(); Declarator(); CompoundStat(); )()) {
+    DeclSpecs(); Declarator(); CompoundStat();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_Decl() {
   if(SPECULATE( DeclSpecs(); InitDeclList(); match(DnLexer::SEMICORON); )()) {
     DeclSpecs(); InitDeclList(); match(DnLexer::SEMICORON);
   }
-  else if(SPECULATE( DeclSpecs(); match(DnLexer::EOF_TYPE); )()) {
-    DeclSpecs(); InitDeclList(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( DeclSpecs(); )()) {
+    DeclSpecs(); InitDeclList();
   }
   else {
     std::stringstream error;
@@ -68,12 +76,12 @@ void DnParser::Decl() {
     throw error.str();
   }
 }
-void DnParser::DeclList() {
-  if(SPECULATE( Decl(); match(DnLexer::EOF_TYPE); )()) {
-    Decl(); match(DnLexer::EOF_TYPE);
+void DnParser::_DeclList() {
+  if(SPECULATE( Decl(); )()) {
+    Decl();
   }
-  else if(SPECULATE( Decl(); DeclList(); match(DnLexer::EOF_TYPE); )()) {
-    Decl(); DeclList(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( Decl(); DeclList(); )()) {
+    Decl(); DeclList();
   }
   else {
     std::stringstream error;
@@ -81,15 +89,15 @@ void DnParser::DeclList() {
     throw error.str();
   }
 }
-void DnParser::DeclSpecs() {
-  if(SPECULATE( FuncSpec(); match(DnLexer::EOF_TYPE); )()) {
+void DnParser::_DeclSpecs() {
+  if(SPECULATE( FuncSpec(); )()) {
     FuncSpec(); match(DnLexer::SEMICORON);
   }
-  else if(SPECULATE( TypeSpec(); match(DnLexer::EOF_TYPE); )()) {
-    TypeSpec(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( TypeSpec(); )()) {
+    TypeSpec();
   }
-  else if(SPECULATE( TypeSpec(); DeclSpecs(); match(DnLexer::EOF_TYPE); )()) {
-    TypeSpec(); DeclSpecs(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( TypeSpec(); DeclSpecs(); )()) {
+    TypeSpec(); DeclSpecs();
   }
   else {
     std::stringstream error;
@@ -97,7 +105,7 @@ void DnParser::DeclSpecs() {
     throw error.str();
   }
 }
-void DnParser::FuncSpec() {
+void DnParser::_FuncSpec() {
   if(SPECULATE( match(DnLexer::FUNCTION); )()) {
     match(DnLexer::FUNCTION);
   }
@@ -107,7 +115,7 @@ void DnParser::FuncSpec() {
     throw error.str();
   }
 }
-void DnParser::TypeSpec() {
+void DnParser::_TypeSpec() {
   if(SPECULATE( match(DnLexer::LET); )()) {
     match(DnLexer::LET);
   }
@@ -117,9 +125,9 @@ void DnParser::TypeSpec() {
     throw error.str();
   }
 }
-void DnParser::InitDeclList() {
-  if(SPECULATE( InitDecl(); match(DnLexer::EOF_TYPE); )()) {
-    InitDecl(); match(DnLexer::EOF_TYPE);
+void DnParser::_InitDeclList() {
+  if(SPECULATE( InitDecl();  )()) {
+    InitDecl();
   }
   else if(SPECULATE( InitDecl(); match(DnLexer::COMMA); InitDeclList(); )()) {
     InitDecl(); match(DnLexer::COMMA); InitDeclList();
@@ -130,9 +138,9 @@ void DnParser::InitDeclList() {
     throw error.str();
   }
 }
-void DnParser::InitDecl() {
-  if(SPECULATE( Declarator(); match(DnLexer::EOF_TYPE); )()) {
-    Declarator(); match(DnLexer::EOF_TYPE);
+void DnParser::_InitDecl() {
+  if(SPECULATE( Declarator();  )()) {
+    Declarator();
   }
   else if(SPECULATE( Declarator(); match(DnLexer::EQUAL); Initializer(); )()) {
     Declarator(); match(DnLexer::EQUAL); Initializer();
@@ -143,7 +151,7 @@ void DnParser::InitDecl() {
     throw error.str();
   }
 }
-void DnParser::Declarator() {
+void DnParser::_Declarator() {
   if(SPECULATE( match(DnLexer::ID); )()) {
     match(DnLexer::ID);
   }
@@ -159,7 +167,7 @@ void DnParser::Declarator() {
     throw error.str();
   }
 }
-void DnParser::IdList() {
+void DnParser::_IdList() {
   if(SPECULATE( match(DnLexer::ID); )()) {
     match(DnLexer::ID);
   }
@@ -172,9 +180,9 @@ void DnParser::IdList() {
     throw error.str();
   }
 }
-void DnParser::Initializer() {
-  if(SPECULATE( AssignExp(); match(DnLexer::EOF_TYPE); )()) {
-    AssignExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_Initializer() {
+  if(SPECULATE( AssignExp(); )()) {
+    AssignExp();
   }
   else {
     std::stringstream error;
@@ -182,21 +190,21 @@ void DnParser::Initializer() {
     throw error.str();
   }
 }
-void DnParser::Stat() {
-  if(SPECULATE( ExpStat(); match(DnLexer::EOF_TYPE); )()) {
-    ExpStat(); match(DnLexer::EOF_TYPE);
+void DnParser::_Stat() {
+  if(SPECULATE( ExpStat();  )()) {
+    ExpStat();
   }
-  else if(SPECULATE( CompoundStat(); match(DnLexer::EOF_TYPE); )()) {
-    CompoundStat(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( CompoundStat();  )()) {
+    CompoundStat();
   }
-  else if(SPECULATE( SelectionStat(); match(DnLexer::EOF_TYPE); )()) {
-    SelectionStat(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( SelectionStat(); )()) {
+    SelectionStat();
   }
-  else if(SPECULATE( IterationStat(); match(DnLexer::EOF_TYPE); )()) {
-    IterationStat(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( IterationStat(); )()) {
+    IterationStat();
   }
-  else if(SPECULATE( JumpStat(); match(DnLexer::EOF_TYPE); )()) {
-    JumpStat(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( JumpStat(); )()) {
+    JumpStat();
   }
   else {
     std::stringstream error;
@@ -204,7 +212,7 @@ void DnParser::Stat() {
     throw error.str();
   }
 }
-void DnParser::ExpStat() {
+void DnParser::_ExpStat() {
   if(SPECULATE( Exp(); match(DnLexer::SEMICORON); )()) {
     Exp(); match(DnLexer::SEMICORON);
   }
@@ -217,7 +225,7 @@ void DnParser::ExpStat() {
     throw error.str();
   }
 }
-void DnParser::CompoundStat() {
+void DnParser::_CompoundStat() {
   if(SPECULATE( match(DnLexer::LBRACKB); DeclList(); StatList(); match(DnLexer::RBRACKB); )()) {
     match(DnLexer::LBRACKB); DeclList(); StatList(); match(DnLexer::RBRACKB);
   }
@@ -236,12 +244,12 @@ void DnParser::CompoundStat() {
     throw error.str();
   }
 }
-void DnParser::StatList() {
-  if(SPECULATE( Stat(); match(DnLexer::EOF_TYPE); )()) {
-    Stat(); match(DnLexer::EOF_TYPE);
+void DnParser::_StatList() {
+  if(SPECULATE( Stat(); )()) {
+    Stat();
   }
-  else if(SPECULATE( Stat(); StatList(); match(DnLexer::EOF_TYPE); )()) {
-    Stat(); StatList(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( Stat(); StatList(); )()) {
+    Stat(); StatList();
   }
   else {
     std::stringstream error;
@@ -249,7 +257,7 @@ void DnParser::StatList() {
     throw error.str();
   }
 }
-void DnParser::SelectionStat() {
+void DnParser::_SelectionStat() {
   if(SPECULATE( match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
     match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
   }
@@ -263,7 +271,7 @@ void DnParser::SelectionStat() {
     throw error.str();
   }
 }
-void DnParser::IterationStat() {
+void DnParser::_IterationStat() {
   if(SPECULATE( match(DnLexer::WHILE); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
     match(DnLexer::WHILE); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
   }
@@ -281,7 +289,7 @@ void DnParser::IterationStat() {
   }
 
 }
-void DnParser::JumpStat() {
+void DnParser::_JumpStat() {
   if(SPECULATE( match(DnLexer::CONTINUE); match(DnLexer::SEMICORON); )()) {
     match(DnLexer::CONTINUE); match(DnLexer::SEMICORON);
   }
@@ -300,9 +308,9 @@ void DnParser::JumpStat() {
     throw error.str();
   }
 }
-void DnParser::Exp() {
-  if(SPECULATE( AssignExp(); match(DnLexer::EOF_TYPE); )()) {
-    AssignExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_Exp() {
+  if(SPECULATE( AssignExp(); )()) {
+    AssignExp();
   }
   else if(SPECULATE( AssignExp(); match(DnLexer::COMMA); Exp(); )()) {
     AssignExp(); match(DnLexer::COMMA); Exp();
@@ -313,9 +321,9 @@ void DnParser::Exp() {
     throw error.str();
   }
 }
-void DnParser::AssignExp() {
-  if(SPECULATE( ConditionalExp(); match(DnLexer::EOF_TYPE); )()) {
-    ConditionalExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_AssignExp() {
+  if(SPECULATE( ConditionalExp(); )()) {
+    ConditionalExp();
   }
   else if(SPECULATE( UnaryExp(); AssignOperator(); AssignExp(); )()) {
     UnaryExp(); AssignOperator(); AssignExp();
@@ -326,43 +334,33 @@ void DnParser::AssignExp() {
     throw error.str();
   }
 }
-void DnParser::AssignOperator() {
-  if(SPECULATE( match(DnLexer::EQUAL); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::EQUAL); match(DnLexer::EOF_TYPE);
+void DnParser::_AssignOperator() {
+  if(SPECULATE( match(DnLexer::EQUAL); )()) {
+    match(DnLexer::EQUAL);
   }
-  else if(SPECULATE( match(DnLexer::MULASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::MULASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::MULASSIGN); )()) {
+    match(DnLexer::MULASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::DIVASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::DIVASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::DIVASSIGN); )()) {
+    match(DnLexer::DIVASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::MODASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::MODASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::MODASSIGN); )()) {
+    match(DnLexer::MODASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::PLUSASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::PLUSASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::PLUSASSIGN); )()) {
+    match(DnLexer::PLUSASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::MINUSASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::MINUSASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::MINUSASSIGN); )()) {
+    match(DnLexer::MINUSASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::ANDASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::ANDASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::ANDASSIGN); )()) {
+    match(DnLexer::ANDASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::ORASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::ORASSIGN); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::ORASSIGN); )()) {
+    match(DnLexer::ORASSIGN);
   }
-  else if(SPECULATE( match(DnLexer::XORASSIGN); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::XORASSIGN); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::ConditionalExp() {
-  if(SPECULATE( LogicalOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    LogicalOrExp(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::XORASSIGN); )()) {
+    match(DnLexer::XORASSIGN);
   }
   else {
     std::stringstream error;
@@ -370,12 +368,9 @@ void DnParser::ConditionalExp() {
     throw error.str();
   }
 }
-void DnParser::LogicalOrExp() {
-  if(SPECULATE( LogicalAndExp(); match(DnLexer::EOF_TYPE); )()) {
-    LogicalAndExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( LogicalOrExp(); match(DnLexer::OROR); LogicalOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    LogicalOrExp(); match(DnLexer::OROR); LogicalOrExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_ConditionalExp() {
+  if(SPECULATE( LogicalOrExp(); )()) {
+    LogicalOrExp();
   }
   else {
     std::stringstream error;
@@ -383,25 +378,12 @@ void DnParser::LogicalOrExp() {
     throw error.str();
   }
 }
-void DnParser::LogicalAndExp() {
-  if(SPECULATE( InclusiveOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    InclusiveOrExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_LogicalOrExp() {
+  if(SPECULATE( LogicalAndExp(); )()) {
+    LogicalAndExp();
   }
-  else if(SPECULATE( InclusiveOrExp(); match(DnLexer::ANDAND); InclusiveOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    InclusiveOrExp(); match(DnLexer::ANDAND); InclusiveOrExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::InclusiveOrExp() {
-  if(SPECULATE( ExclusiveOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    ExclusiveOrExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( ExclusiveOrExp(); match(DnLexer::OR); ExclusiveOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    ExclusiveOrExp(); match(DnLexer::OR); ExclusiveOrExp(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( LogicalOrExp(); match(DnLexer::OROR); LogicalOrExp(); )()) {
+    LogicalOrExp(); match(DnLexer::OROR); LogicalOrExp();
   }
   else {
     std::stringstream error;
@@ -409,26 +391,12 @@ void DnParser::InclusiveOrExp() {
     throw error.str();
   }
 }
-void DnParser::ExclusiveOrExp() {
-  if(SPECULATE( AndExp(); match(DnLexer::EOF_TYPE); )()) {
-    AndExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_LogicalAndExp() {
+  if(SPECULATE( InclusiveOrExp(); )()) {
+    InclusiveOrExp();
   }
-  else if(SPECULATE( AndExp(); match(DnLexer::XOR); ExclusiveOrExp(); match(DnLexer::EOF_TYPE); )()) {
-    AndExp(); match(DnLexer::XOR); ExclusiveOrExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-
-}
-void DnParser::AndExp() {
-  if(SPECULATE( EqualityExp(); match(DnLexer::EOF_TYPE); )()) {
-    EqualityExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( EqualityExp(); match(DnLexer::AND); AndExp(); match(DnLexer::EOF_TYPE); )()) {
-    EqualityExp(); match(DnLexer::AND); AndExp(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( InclusiveOrExp(); match(DnLexer::ANDAND); InclusiveOrExp(); )()) {
+    InclusiveOrExp(); match(DnLexer::ANDAND); InclusiveOrExp();
   }
   else {
     std::stringstream error;
@@ -436,15 +404,12 @@ void DnParser::AndExp() {
     throw error.str();
   }
 }
-void DnParser::EqualityExp() {
-  if(SPECULATE( RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    RelationalExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_InclusiveOrExp() {
+  if(SPECULATE( ExclusiveOrExp(); )()) {
+    ExclusiveOrExp();
   }
-  else if(SPECULATE( RelationalExp(); match(DnLexer::EQUALEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    RelationalExp(); match(DnLexer::EQUALEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( RelationalExp(); match(DnLexer::NOTEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    RelationalExp(); match(DnLexer::NOTEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( ExclusiveOrExp(); match(DnLexer::OR); ExclusiveOrExp(); )()) {
+    ExclusiveOrExp(); match(DnLexer::OR); ExclusiveOrExp();
   }
   else {
     std::stringstream error;
@@ -452,132 +417,12 @@ void DnParser::EqualityExp() {
     throw error.str();
   }
 }
-void DnParser::RelationalExp() {
-  if(SPECULATE( ShiftExp(); match(DnLexer::EOF_TYPE); )()) {
-    ShiftExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_ExclusiveOrExp() {
+  if(SPECULATE( AndExp(); )()) {
+    AndExp();
   }
-  else if(SPECULATE( ShiftExp(); match(DnLexer::LESS); RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    ShiftExp(); match(DnLexer::LESS); RelationalExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( ShiftExp(); match(DnLexer::ABOVE); RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    ShiftExp(); match(DnLexer::ABOVE); RelationalExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( ShiftExp(); match(DnLexer::LESSEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    ShiftExp(); match(DnLexer::LESSEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( ShiftExp(); match(DnLexer::ABOVEEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE); )()) {
-    ShiftExp(); match(DnLexer::ABOVEEQUAL); RelationalExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::ShiftExp() {
-  if(SPECULATE( AdditiveExp(); match(DnLexer::EOF_TYPE); )()) {
-    AdditiveExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( AdditiveExp(); match(DnLexer::LESSLESS); ShiftExp(); match(DnLexer::EOF_TYPE); )()) {
-    AdditiveExp(); match(DnLexer::LESSLESS); ShiftExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( AdditiveExp(); match(DnLexer::ABOVEABOVE); ShiftExp(); match(DnLexer::EOF_TYPE); )()) {
-    AdditiveExp(); match(DnLexer::ABOVEABOVE); ShiftExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::AdditiveExp() {
-  if(SPECULATE( MultExp(); match(DnLexer::EOF_TYPE); )()) {
-    MultExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( MultExp(); match(DnLexer::PLUS); ShiftExp(); match(DnLexer::EOF_TYPE); )()) {
-    MultExp(); match(DnLexer::PLUS); AdditiveExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( MultExp(); match(DnLexer::MINUS); ShiftExp(); match(DnLexer::EOF_TYPE); )()) {
-    MultExp(); match(DnLexer::MINUS); AdditiveExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::MultExp() {
-  if(SPECULATE( UnaryExp(); match(DnLexer::EOF_TYPE); )()) {
-    UnaryExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( UnaryExp(); match(DnLexer::MUL); MultExp(); match(DnLexer::EOF_TYPE); )()) {
-    UnaryExp(); match(DnLexer::MUL); MultExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( UnaryExp(); match(DnLexer::DIV); MultExp(); match(DnLexer::EOF_TYPE); )()) {
-    UnaryExp(); match(DnLexer::DIV); MultExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( UnaryExp(); match(DnLexer::MOD); MultExp(); match(DnLexer::EOF_TYPE); )()) {
-    UnaryExp(); match(DnLexer::MOD); MultExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::UnaryExp() {
-  if(SPECULATE( PostfixExp(); match(DnLexer::EOF_TYPE); )()) {
-    PostfixExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( match(DnLexer::PLUSPLUS); UnaryExp(); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::PLUSPLUS); UnaryExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( match(DnLexer::MINUSMINUS); UnaryExp(); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::MINUSMINUS); UnaryExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( UnaryOperator(); UnaryExp(); match(DnLexer::EOF_TYPE); )()) {
-    UnaryOperator(); UnaryExp(); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::UnaryOperator() {
-  if(SPECULATE( match(DnLexer::PLUS); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::PLUS); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( match(DnLexer::MINUS); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::MINUS); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( match(DnLexer::NOT); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::NOT); match(DnLexer::EOF_TYPE);
-  }
-  else {
-    std::stringstream error;
-    error << "Error: " << LT(1);
-    throw error.str();
-  }
-}
-void DnParser::PostfixExp() {
-  if(SPECULATE( PrimaryExp(); match(DnLexer::EOF_TYPE); )()) {
-    PrimaryExp(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACK); Exp(); match(DnLexer::RBRACK); match(DnLexer::EOF_TYPE); )()) {
-    PrimaryExp(); match(DnLexer::LBRACK); Exp(); match(DnLexer::RBRACK); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACKA); ArgumentExpList(); match(DnLexer::RBRACKA); match(DnLexer::EOF_TYPE); )()) {
-    PrimaryExp(); match(DnLexer::LBRACKA); ArgumentExpList(); match(DnLexer::RBRACKA); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA); match(DnLexer::EOF_TYPE); )()) {
-    PrimaryExp(); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::PLUSPLUS); match(DnLexer::EOF_TYPE); )()) {
-    PrimaryExp(); match(DnLexer::PLUSPLUS); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::MINUSMINUS); match(DnLexer::EOF_TYPE); )()) {
-    PrimaryExp(); match(DnLexer::MINUSMINUS); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( AndExp(); match(DnLexer::XOR); ExclusiveOrExp(); )()) {
+    AndExp(); match(DnLexer::XOR); ExclusiveOrExp();
   }
   else {
     std::stringstream error;
@@ -586,18 +431,12 @@ void DnParser::PostfixExp() {
   }
 
 }
-void DnParser::PrimaryExp() {
-  if(SPECULATE( match(DnLexer::ID); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::ID); match(DnLexer::EOF_TYPE);
+void DnParser::_AndExp() {
+  if(SPECULATE( EqualityExp(); )()) {
+    EqualityExp();
   }
-  else if(SPECULATE( Const(); match(DnLexer::EOF_TYPE); )()) {
-    Const(); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( match(DnLexer::STRING); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::STRING); match(DnLexer::EOF_TYPE);
-  }
-  else if(SPECULATE( match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( EqualityExp(); match(DnLexer::AND); AndExp(); )()) {
+    EqualityExp(); match(DnLexer::AND); AndExp();
   }
   else {
     std::stringstream error;
@@ -605,9 +444,178 @@ void DnParser::PrimaryExp() {
     throw error.str();
   }
 }
-void DnParser::ArgumentExpList() {
-  if(SPECULATE( AssignExp(); match(DnLexer::EOF_TYPE); )()) {
-    AssignExp(); match(DnLexer::EOF_TYPE);
+void DnParser::_EqualityExp() {
+  if(SPECULATE( RelationalExp(); )()) {
+    RelationalExp();
+  }
+  else if(SPECULATE( RelationalExp(); match(DnLexer::EQUALEQUAL); RelationalExp(); )()) {
+    RelationalExp(); match(DnLexer::EQUALEQUAL); RelationalExp();
+  }
+  else if(SPECULATE( RelationalExp(); match(DnLexer::NOTEQUAL); RelationalExp(); )()) {
+    RelationalExp(); match(DnLexer::NOTEQUAL); RelationalExp();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_RelationalExp() {
+  if(SPECULATE( ShiftExp(); )()) {
+    ShiftExp();
+  }
+  else if(SPECULATE( ShiftExp(); match(DnLexer::LESS); RelationalExp(); )()) {
+    ShiftExp(); match(DnLexer::LESS); RelationalExp();
+  }
+  else if(SPECULATE( ShiftExp(); match(DnLexer::ABOVE); RelationalExp(); )()) {
+    ShiftExp(); match(DnLexer::ABOVE); RelationalExp();
+  }
+  else if(SPECULATE( ShiftExp(); match(DnLexer::LESSEQUAL); RelationalExp(); )()) {
+    ShiftExp(); match(DnLexer::LESSEQUAL); RelationalExp();
+  }
+  else if(SPECULATE( ShiftExp(); match(DnLexer::ABOVEEQUAL); RelationalExp(); )()) {
+    ShiftExp(); match(DnLexer::ABOVEEQUAL); RelationalExp();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_ShiftExp() {
+  if(SPECULATE( AdditiveExp(); )()) {
+    AdditiveExp();
+  }
+  else if(SPECULATE( AdditiveExp(); match(DnLexer::LESSLESS); ShiftExp(); )()) {
+    AdditiveExp(); match(DnLexer::LESSLESS); ShiftExp();
+  }
+  else if(SPECULATE( AdditiveExp(); match(DnLexer::ABOVEABOVE); ShiftExp(); )()) {
+    AdditiveExp(); match(DnLexer::ABOVEABOVE); ShiftExp();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_AdditiveExp() {
+  if(SPECULATE( MultExp(); )()) {
+    MultExp();
+  }
+  else if(SPECULATE( MultExp(); match(DnLexer::PLUS); ShiftExp(); )()) {
+    MultExp(); match(DnLexer::PLUS); AdditiveExp();
+  }
+  else if(SPECULATE( MultExp(); match(DnLexer::MINUS); ShiftExp(); )()) {
+    MultExp(); match(DnLexer::MINUS); AdditiveExp();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_MultExp() {
+  if(SPECULATE( UnaryExp(); )()) {
+    UnaryExp();
+  }
+  else if(SPECULATE( UnaryExp(); match(DnLexer::MUL); MultExp(); )()) {
+    UnaryExp(); match(DnLexer::MUL); MultExp();
+  }
+  else if(SPECULATE( UnaryExp(); match(DnLexer::DIV); MultExp(); )()) {
+    UnaryExp(); match(DnLexer::DIV); MultExp();
+  }
+  else if(SPECULATE( UnaryExp(); match(DnLexer::MOD); MultExp(); )()) {
+    UnaryExp(); match(DnLexer::MOD); MultExp();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_UnaryExp() {
+  if(SPECULATE( PostfixExp(); )()) {
+    PostfixExp();
+  }
+  else if(SPECULATE( match(DnLexer::PLUSPLUS); UnaryExp(); )()) {
+    match(DnLexer::PLUSPLUS); UnaryExp();
+  }
+  else if(SPECULATE( match(DnLexer::MINUSMINUS); UnaryExp(); )()) {
+    match(DnLexer::MINUSMINUS); UnaryExp();
+  }
+  else if(SPECULATE( UnaryOperator(); UnaryExp(); )()) {
+    UnaryOperator(); UnaryExp();
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_UnaryOperator() {
+  if(SPECULATE( match(DnLexer::PLUS); )()) {
+    match(DnLexer::PLUS);
+  }
+  else if(SPECULATE( match(DnLexer::MINUS); )()) {
+    match(DnLexer::MINUS);
+  }
+  else if(SPECULATE( match(DnLexer::NOT); )()) {
+    match(DnLexer::NOT);
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_PostfixExp() {
+  if(SPECULATE( PrimaryExp(); )()) {
+    PrimaryExp();
+  }
+  else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACK); Exp(); match(DnLexer::RBRACK); )()) {
+    PrimaryExp(); match(DnLexer::LBRACK); Exp(); match(DnLexer::RBRACK);
+  }
+  else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACKA); ArgumentExpList(); match(DnLexer::RBRACKA); )()) {
+    PrimaryExp(); match(DnLexer::LBRACKA); ArgumentExpList(); match(DnLexer::RBRACKA);
+  }
+  else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA); )()) {
+    PrimaryExp(); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA);
+  }
+  else if(SPECULATE( PrimaryExp(); match(DnLexer::PLUSPLUS); )()) {
+    PrimaryExp(); match(DnLexer::PLUSPLUS);
+  }
+  else if(SPECULATE( PrimaryExp(); match(DnLexer::MINUSMINUS); )()) {
+    PrimaryExp(); match(DnLexer::MINUSMINUS);
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+
+}
+void DnParser::_PrimaryExp() {
+  if(SPECULATE( match(DnLexer::ID); )()) {
+    match(DnLexer::ID);
+  }
+  else if(SPECULATE( Const(); )()) {
+    Const();
+  }
+  else if(SPECULATE( match(DnLexer::STRING); )()) {
+    match(DnLexer::STRING);
+  }
+  else if(SPECULATE( match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); )()) {
+    match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA);
+  }
+  else {
+    std::stringstream error;
+    error << "Error: " << LT(1);
+    throw error.str();
+  }
+}
+void DnParser::_ArgumentExpList() {
+  if(SPECULATE( AssignExp(); )()) {
+    AssignExp();
   }
   else if(SPECULATE( AssignExp(); match(DnLexer::COMMA); ArgumentExpList(); )()) {
     AssignExp(); match(DnLexer::COMMA); ArgumentExpList();
@@ -618,15 +626,15 @@ void DnParser::ArgumentExpList() {
     throw error.str();
   }
 }
-void DnParser::Const() {
-  if(SPECULATE( match(DnLexer::INTCONST); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::INTCONST); match(DnLexer::EOF_TYPE);
+void DnParser::_Const() {
+  if(SPECULATE( match(DnLexer::INTCONST); )()) {
+    match(DnLexer::INTCONST);
   }
-  else if(SPECULATE( match(DnLexer::CHARCONST); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::CHARCONST); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::CHARCONST); )()) {
+    match(DnLexer::CHARCONST);
   }
-  else if(SPECULATE( match(DnLexer::FLOATCONST); match(DnLexer::EOF_TYPE); )()) {
-    match(DnLexer::FLOATCONST); match(DnLexer::EOF_TYPE);
+  else if(SPECULATE( match(DnLexer::FLOATCONST); )()) {
+    match(DnLexer::FLOATCONST);
   }
   else {
     std::stringstream error;
@@ -634,4 +642,44 @@ void DnParser::Const() {
     throw error.str();
   }
 }
+void DnParser::TranslationUnit() { DEFINE_MEMO(TranslationUnit,TranslationUnit();) }
+void DnParser::ExternalDecl() { DEFINE_MEMO(ExternalDecl,ExternalDecl();) }
+void DnParser::FunctionDef() { DEFINE_MEMO(FunctionDef,FunctionDef();) }
+void DnParser::Decl() { DEFINE_MEMO(Decl,Decl();) }
+void DnParser::DeclList() { DEFINE_MEMO(DeclList,DeclList();) }
+void DnParser::DeclSpecs() { DEFINE_MEMO(DeclSpecs,DeclSpecs();) }
+void DnParser::FuncSpec() { DEFINE_MEMO(FuncSpec,FuncSpec();) }
+void DnParser::TypeSpec() { DEFINE_MEMO(TypeSpec,TypeSpec();) }
+void DnParser::InitDeclList() { DEFINE_MEMO(InitDeclList,InitDeclList();) }
+void DnParser::InitDecl() { DEFINE_MEMO(InitDecl,InitDecl();) }
+void DnParser::Declarator() { DEFINE_MEMO(Declarator,Declarator();) }
+void DnParser::IdList() { DEFINE_MEMO(IdList,IdList();) }
+void DnParser::Initializer() { DEFINE_MEMO(Initializer,Initializer();) }
+void DnParser::Stat() { DEFINE_MEMO(Stat,Stat();) }
+void DnParser::ExpStat() { DEFINE_MEMO(ExpStat,ExpStat();) }
+void DnParser::CompoundStat() { DEFINE_MEMO(CompoundStat,CompoundStat();) }
+void DnParser::StatList() { DEFINE_MEMO(StatList,StatList();) }
+void DnParser::SelectionStat() { DEFINE_MEMO(SelectionStat,SelectionStat();) }
+void DnParser::IterationStat() { DEFINE_MEMO(IterationStat,IterationStat();) }
+void DnParser::JumpStat() { DEFINE_MEMO(JumpStat,JumpStat();) }
+void DnParser::Exp() { DEFINE_MEMO(Exp,Exp();) }
+void DnParser::AssignExp() { DEFINE_MEMO(AssignExp,AssignExp();) }
+void DnParser::AssignOperator() { DEFINE_MEMO(AssignOperator,AssignOperator();) }
+void DnParser::ConditionalExp() { DEFINE_MEMO(ConditionalExp,ConditionalExp();) }
+void DnParser::LogicalOrExp() { DEFINE_MEMO(LogicalOrExp,LogicalOrExp();) }
+void DnParser::LogicalAndExp() { DEFINE_MEMO(LogicalAndExp,LogicalAndExp();) }
+void DnParser::InclusiveOrExp() { DEFINE_MEMO(InclusiveOrExp,InclusiveOrExp();) }
+void DnParser::ExclusiveOrExp() { DEFINE_MEMO(ExclusiveOrExp,ExclusiveOrExp();) }
+void DnParser::AndExp() { DEFINE_MEMO(AndExp,AndExp();) }
+void DnParser::EqualityExp() { DEFINE_MEMO(EqualityExp,EqualityExp();) }
+void DnParser::RelationalExp() { DEFINE_MEMO(RelationalExp,RelationalExp();) }
+void DnParser::ShiftExp() { DEFINE_MEMO(ShiftExp,ShiftExp();) }
+void DnParser::AdditiveExp() { DEFINE_MEMO(AdditiveExp,AdditiveExp();) }
+void DnParser::MultExp() { DEFINE_MEMO(MultExp,MultExp();) }
+void DnParser::UnaryExp() { DEFINE_MEMO(UnaryExp,UnaryExp();) }
+void DnParser::UnaryOperator() { DEFINE_MEMO(UnaryOperator,UnaryOperator();) }
+void DnParser::PostfixExp() { DEFINE_MEMO(PostfixExp,PostfixExp();) }
+void DnParser::PrimaryExp() { DEFINE_MEMO(PrimaryExp,PrimaryExp();) }
+void DnParser::ArgumentExpList() { DEFINE_MEMO(ArgumentExpList,ArgumentExpList();) }
+void DnParser::Const() { DEFINE_MEMO(Const,Const();) }
 }

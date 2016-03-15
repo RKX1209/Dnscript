@@ -44,6 +44,47 @@ public:
   void PrimaryExp();
   void ArgumentExpList();
   void Const();
+
+  void _TranslationUnit();
+  void _ExternalDecl();
+  void _FunctionDef();
+  void _Decl();
+  void _DeclList();
+  void _DeclSpecs();
+  void _FuncSpec();
+  void _TypeSpec();
+  void _InitDeclList();
+  void _InitDecl();
+  void _Declarator();
+  void _IdList();
+  void _Initializer();
+  void _Stat();
+  void _ExpStat();
+  void _CompoundStat();
+  void _StatList();
+  void _SelectionStat();
+  void _IterationStat();
+  void _JumpStat();
+  void _Exp();
+  void _AssignExp();
+  void _AssignOperator();
+  void _ConditionalExp();
+  void _LogicalOrExp();
+  void _LogicalAndExp();
+  void _InclusiveOrExp();
+  void _ExclusiveOrExp();
+  void _AndExp();
+  void _EqualityExp();
+  void _RelationalExp();
+  void _ShiftExp();
+  void _AdditiveExp();
+  void _MultExp();
+  void _UnaryExp();
+  void _UnaryOperator();
+  void _PostfixExp();
+  void _PrimaryExp();
+  void _ArgumentExpList();
+  void _Const();
 };
 }
 #endif

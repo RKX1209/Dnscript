@@ -1,9 +1,12 @@
 #include <string>
 #include <boost/format.hpp>
 #include <vector>
+#include <map>
 #include "Token.hpp"
 #include "Lexer.hpp"
 #include "Parser.hpp"
+
+const int Parser::FAILED = -1;
 
 Token Parser::LT(int i) {
   sync(i);
@@ -51,6 +54,22 @@ void Parser::release() {
   int marker = markers[markers.size() - 1];
   markers.pop_back();
   seek(marker);
+}
+
+bool Parser::alreadyParsedRule(std::map<int,int> memo) {
+  if(memo.find(index()) == memo.end()) return false;
+  int memoI = memo[index()];
+  if(memoI == FAILED) throw "Previous parse has already failed";
+  seek(memoI);
+  return true;
+}
+
+void Parser::memorize(std::map<int,int> memo, int startTokenIndex, bool failed) {
+
+}
+
+int Parser::index() {
+  return p;
 }
 
 void Parser::seek(int index) {
