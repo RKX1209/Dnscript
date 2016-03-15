@@ -5,6 +5,8 @@
 <function_def>      ::=    <decl_specs> <declarator> <compound_stat>
 <decl>              ::=    <decl_specs> <init_decl_list> ";"
                       |    <decl_specs>
+<decl_list>         ::=    <decl>
+                      |    <decl> <decl_list>
 <decl_specs>        ::=    <func_spec>
                       |    <type_spec>
                       |    <type_spec> <decl_specs>
@@ -27,15 +29,14 @@
                       |    <jump_stat>
 <exp_stat>          ::=    <exp> ";"
                       |          ";"
-<compound_stat>     ::=    "{" <dec_list> <stat_list> "}"
+<compound_stat>     ::=    "{" <decl_list> <stat_list> "}"
                       |    "{"            <stat_list> "}"
-                      |    "{" <dec_list>             "}"
+                      |    "{" <decl_list>             "}"
                       |    "{"                        "}"
 <stat_list>         ::=    <stat>
                       |    <stat> <stat_list>
 <selection_stat>    ::=    "if" "(" <exp> ")" <stat>
                       |    "if" "(" <exp> ")" <stat> "else" <stat>
-                      |    "switch" "(" <exp> ")" <stat>
 <iteration_stat>    ::=    "while" "(" <exp> ")" <stat>
                       |    "for" "(" <exp> ";" <exp> ";" <exp> ")" <stat>
 <jump_stat>         ::=    "continue" ";"
@@ -48,6 +49,7 @@
                       |    <unary_exp> <assign_operator> <assign_exp>
 <assign_operator>   ::=    "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "&=" | "|=" | "^="
 <conditional_exp>   ::=    <logical_or_exp>
+<logical_or_exp>    ::=    <logical_and_exp>
                       |    <logical_or_exp> "||" <logical_and_exp>
 <logical_and_exp>   ::=    <inclusive_or_exp>
                       |    <inclusive_or_exp> "&&" <logical_and_exp>
@@ -79,7 +81,7 @@
                       |    "++" <unary_exp>
                       |    "--" <unary_exp>
                       |    <unary_operator> <unary_exp>
-<unary_operator>    ::=    "+" | "-" | "~" | "!"
+<unary_operator>    ::=    "+" | "-" | "!"
 <postfix_exp>       ::=    <primary_exp>
                       |    <primary_exp> "[" <exp> "]"
                       |    <primary_exp> "(" <argument_exp_list> ")"
@@ -90,8 +92,8 @@
                       |    <const>
                       |    <string>
                       |    "(" <exp> ")"
-<argument_exp_list> ::=    <assignment_exp>
-                      |    <assignment_exp> "," <argument_exp_list>
+<argument_exp_list> ::=    <assign_exp>
+                      |    <assign_exp> "," <argument_exp_list>
 <const>             ::=    <int_const>
                       |    <char_const>
                       |    <float_const>

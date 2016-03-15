@@ -1,8 +1,12 @@
 #include <string>
 #include <boost/format.hpp>
+#include "Token.hpp"
 #include "Lexer.hpp"
 
 const char Lexer::LEX_EOF = (char)-1;
+Lexer::Lexer() {
+  p = 0;
+}
 Lexer::Lexer(std::string _input) : input(_input) {
   p = 0;
   c = input[p];

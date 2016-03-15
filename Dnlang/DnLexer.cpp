@@ -1,8 +1,8 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include "Lexer.hpp"
 #include "Token.hpp"
+#include "Lexer.hpp"
 #include "DnLexer.hpp"
 
 
@@ -40,11 +40,11 @@ namespace Dnlang {
 
 const std::string DnLexer::token_names[] = {
   "n/a", "<EOF>",
-  "BREAK", "CONTINUE", "FOR", "FUNCTION", "IF", "LET", "RETURN", "SWITCH",
+  "BREAK", "CONTINUE", "ELSE", "FOR", "FUNCTION", "IF", "LET", "RETURN", "SWITCH",
   "WHILE",
   "ID", "INTCONST", "CHARCONST", "FLOATCONST", "STRING", "SEMICORON", "COMMA",
   "LBRACKA", "RBRACKA", "LBRACK", "RBRACK", "LBRACKB", "RBRACKB",
-  "ASSIGN", "MULASSIGN", "DIVASSIGN", "MODASSIGN", "PLUSASSIGN", "MINUSASSIGN",
+  "MULASSIGN", "DIVASSIGN", "MODASSIGN", "PLUSASSIGN", "MINUSASSIGN",
   "ANDASSIGN", "ORASSIGN", "XORASSIGN",
   "OROR", "OR", "ANDAND", "AND", "XOR", "NOT", "PLUS", "MINUS", "MUL", "DIV", "MOD",
   "LESSLESS", "ABOVEABOVE", "PLUSPLUS", "MINUSMINUS", "EQUALEQUAL", "NOTEQUAL",
@@ -52,7 +52,7 @@ const std::string DnLexer::token_names[] = {
 };
 
 const std::string DnLexer::reserved[] = {
-  "break", "continue", "for", "function", "if", "let", "return", "switch", "while",
+  "break", "continue", "else", "for", "function", "if", "let", "return", "switch", "while",
 };
 
 Token DnLexer::nextToken() {
