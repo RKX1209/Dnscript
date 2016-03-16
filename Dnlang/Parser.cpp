@@ -2,8 +2,10 @@
 #include <boost/format.hpp>
 #include <vector>
 #include <map>
+#include <iostream>
 #include "Token.hpp"
 #include "Lexer.hpp"
+#include "DnLexer.hpp"
 #include "Parser.hpp"
 
 const int Parser::FAILED = -1;
@@ -18,22 +20,30 @@ int Parser::LA(int i) {
 }
 
 void Parser::match(int x) {
-  if(LA(1) == x) consume();
+  // if(isSpeculating()) std::cout << "[SPEC]";
+  // std::cout<< "["<< markers.size() <<"]";
+  // std::cout<< "[::match] trying " << input->get_token_name(x)<<std::endl;
+  if(LA(1) == x) {
+    //std::cout<<"...Matched"<<std::endl;
+    consume();
+  }
   else {
-    std::string error = (boost::format("expecting %c; ") % input.get_token_name(x) ).str();
+    //std::cout<<"...MissMatched"<<std::endl;
+    std::string error = (boost::format("expecting %s; ") % input->get_token_name(x) ).str();
     throw error;
   }
 }
 
 void Parser::sync(int i) {
-  if(p + i - 1 > (lookahead.size() - 1)) {
-    int n = (p + i - 1) - (lookahead.size() - 1);
+  if(p + i - 1 > ((int)lookahead.size() - 1)) {
+    int n = (p + i - 1) - ((int)lookahead.size() - 1);
     fill(n);
   }
 }
 
 void Parser::fill(int n) {
-  for(int i = 0; i < n; i++) { lookahead.push_back(input.nextToken()); }
+  //std::cout<<"fill"<<n<<std::endl;
+  for(int i = 0; i < n; i++) { lookahead.push_back(input->nextToken()); }
 }
 
 void Parser::consume() {
@@ -56,16 +66,22 @@ void Parser::release() {
   seek(marker);
 }
 
-bool Parser::alreadyParsedRule(std::map<int,int> memo) {
+bool Parser::alreadyParsedRule(std::string rule) {
+  std::map<int,int> memo = memos[rule];
   if(memo.find(index()) == memo.end()) return false;
   int memoI = memo[index()];
-  if(memoI == FAILED) throw "Previous parse has already failed";
+  if(memoI == FAILED) {
+    std::string error = "Previous parse has already failed";
+    throw error;
+  }
   seek(memoI);
   return true;
 }
 
-void Parser::memorize(std::map<int,int> memo, int startTokenIndex, bool failed) {
-
+void Parser::memorize(std::string rule, int startTokenIndex, bool failed) {
+  int stopTokenIndex = failed ? FAILED : index();
+  if(memos.find(rule) == memos.end()) memos[rule] = std::map<int,int>();
+  memos[rule][startTokenIndex] = stopTokenIndex;
 }
 
 int Parser::index() {

@@ -4,6 +4,14 @@
 namespace Dnlang {
 class DnParser : public Parser {
 public:
+  DnLexer *dnlexer;
+  DnParser(std::string script) : Parser(script) {
+    dnlexer = new DnLexer(script);
+    input = dnlexer;
+  }
+  ~DnParser() {
+    delete dnlexer;
+  }
   void TranslationUnit();
   void ExternalDecl();
   void FunctionDef();

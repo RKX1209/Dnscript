@@ -3,14 +3,14 @@
 
 class Parser {
 public:
-  Lexer input;
+  Lexer *input;
   /* record points of tokens to role back */
   std::vector<int> markers;
   std::vector<Token> lookahead;
   std::map<std::string, std::map<int, int> > memos;
   static const int FAILED;;
   int p;
-  Parser() : p(0) {}
+  Parser(std::string script) : p(0) {}
   Token LT(int i);
   int LA(int i);
   void match(int x);
@@ -21,8 +21,8 @@ public:
   void release();
   void seek(int index);
   bool isSpeculating();
-  bool alreadyParsedRule(std::map<int,int> memo);
-  void memorize(std::map<int,int> memo, int startTokenIndex, bool failed);
+  bool alreadyParsedRule(std::string rule);
+  void memorize(std::string rule, int startTokenIndex, bool failed);
   int index();
 };
 
