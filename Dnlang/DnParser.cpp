@@ -21,26 +21,29 @@
   bool failed = false; \
   int startTokenIndex = index(); \
   if(isSpeculating() && alreadyParsedRule(#x)) return; \
-  std::cout<< "<" << startTokenIndex << "," << #x << ">" << std::endl; \
+  if(!isSpeculating()) \
+    std::cout<< "<" << startTokenIndex << "," << #x << ">\n\n"; \
   try { _##fp } \
   catch(std::string &s) { \
     failed = true; \
     if(isSpeculating()) memorize(#x, startTokenIndex, failed); \
-    std::cout<< "</" << startTokenIndex << "," << #x << ">\n\n"; \
+    if(!isSpeculating()) \
+      std::cout<< "[ERROR]</" << startTokenIndex << "," << #x << ">\n\n"; \
     throw s; \
   } \
   if(isSpeculating()) memorize(#x, startTokenIndex, failed); \
-  std::cout<< "</" << startTokenIndex << "," << #x << ">\n\n"; \
+  if(!isSpeculating()) \
+    std::cout<< "</" << startTokenIndex << "," << #x << ">\n\n"; \
 
 namespace Dnlang {
   /* type inference
      XXX bit ugly. Is there any better solution? */
 void DnParser::_TranslationUnit() {
-  if(SPECULATE( ExternalDecl(); TranslationUnit(); )()) {
-    ExternalDecl(); TranslationUnit();
+  if(SPECULATE( ExternalDecl(); TranslationUnit(); match(DnLexer::EOF_TYPE); )()) {
+    ExternalDecl(); TranslationUnit(); match(DnLexer::EOF_TYPE);
   }
-  else if(SPECULATE( ExternalDecl(); )()) {
-    ExternalDecl();
+  else if(SPECULATE( ExternalDecl(); match(DnLexer::EOF_TYPE); )()) {
+    ExternalDecl(); match(DnLexer::EOF_TYPE);
   }
   else {
     std::stringstream error;
@@ -109,7 +112,6 @@ void DnParser::_DeclSpecs() {
 }
 void DnParser::_FuncSpec() {
   if(SPECULATE( match(DnLexer::FUNCTION); )()) {
-    std::cout<<"[ACTUAL] FUNCTION"<<std::endl;
     match(DnLexer::FUNCTION);
   }
   else {
@@ -325,11 +327,11 @@ void DnParser::_Exp() {
   }
 }
 void DnParser::_AssignExp() {
-  if(SPECULATE( ConditionalExp(); )()) {
-    ConditionalExp();
-  }
-  else if(SPECULATE( UnaryExp(); AssignOperator(); AssignExp(); )()) {
+  if(SPECULATE( UnaryExp(); AssignOperator(); AssignExp(); )()) {
     UnaryExp(); AssignOperator(); AssignExp();
+  }
+  else if(SPECULATE( ConditionalExp(); )()) {
+    ConditionalExp();
   }
   else {
     std::stringstream error;
@@ -528,7 +530,6 @@ void DnParser::_MultExp() {
     UnaryExp(); match(DnLexer::MOD); MultExp();
   }
   else if(SPECULATE( UnaryExp(); )()) {
-    std::cout<<"[ACUTAL] UnaryExp"<<std::endl;
     UnaryExp();
   }
   else {
@@ -589,7 +590,6 @@ void DnParser::_PostfixExp() {
     PrimaryExp(); match(DnLexer::MINUSMINUS);
   }
   else if(SPECULATE( PrimaryExp(); )()) {
-    std::cout<<"[ACTUAL] PrimaryExp"<<std::endl;
     PrimaryExp();
   }
   else {
@@ -607,7 +607,6 @@ void DnParser::_PrimaryExp() {
     Const();
   }
   else if(SPECULATE( match(DnLexer::STRING); )()) {
-    std::cout<<"[ACTUAL] STRING"<<std::endl;
     match(DnLexer::STRING);
   }
   else if(SPECULATE( match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); )()) {

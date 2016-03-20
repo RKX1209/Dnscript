@@ -23,10 +23,7 @@ void Parser::match(int x) {
   // if(isSpeculating()) std::cout << "[SPEC]";
   // std::cout<< "["<< markers.size() <<"]";
   // std::cout<< "[::match] trying " << input->get_token_name(x)<<std::endl;
-  if(LA(1) == x) {
-    //std::cout<<"...Matched"<<std::endl;
-    consume();
-  }
+  if(LA(1) == x) consume();
   else {
     //std::cout<<"...MissMatched"<<std::endl;
     std::string error = (boost::format("expecting %s; ") % input->get_token_name(x) ).str();

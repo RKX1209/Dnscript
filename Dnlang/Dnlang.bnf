@@ -40,9 +40,9 @@
                       |    "return" <exp> ";"
                       |    "return" ";"
 <exp>               ::=    <assign_exp> "," <exp>
-                      |    <assign_exp>
-<assign_exp>        ::=    <conditional_exp>
-                      |    <unary_exp> <assign_operator> <assign_exp>
+                      |    <assign_exp>    
+<assign_exp>        ::=    <unary_exp> <assign_operator> <assign_exp>
+		      |    <conditional_exp>
 <assign_operator>   ::=    "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "&=" | "|=" | "^="
 <conditional_exp>   ::=    <logical_or_exp>
 <logical_or_exp>    ::=    <logical_and_exp>
