@@ -81,8 +81,6 @@
 <postfix_exp>       ::=    <primary_exp> "[" <exp> "]"
                       |    <primary_exp> "(" <argument_exp_list> ")"
                       |    <primary_exp> "("  ")"
-                      |    <primary_exp> "++"
-                      |    <primary_exp> "--"
                       |    <primary_exp>
 <primary_exp>       ::=    <id>
                       |    <const>

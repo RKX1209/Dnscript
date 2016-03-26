@@ -5,13 +5,17 @@ namespace Dnlang {
 class DnParser : public Parser {
 public:
   DnLexer *dnlexer;
+  AST *ast_root;
   DnParser(std::string script) : Parser(script) {
     dnlexer = new DnLexer(script);
+    ast_root = new AST();
     input = dnlexer;
   }
   ~DnParser() {
+    delete ast_root;
     delete dnlexer;
   }
+  AST *get_AST() { return ast_root; }
   void TranslationUnit();
   void ExternalDecl();
   void FunctionDef();

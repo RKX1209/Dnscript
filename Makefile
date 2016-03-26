@@ -6,7 +6,7 @@ OBJS		=		Main.o Dnscript.o Title.o Select.o Game.o \
 						test/player_test.o test/enemy_test.o\
 
 DN_OBJS =	  Dnlang/Lexer.o Dnlang/DnLexer.o Dnlang/Token.o Dnlang/Parser.o \
-						Dnlang/DnParser.o
+						Dnlang/DnParser.o Dnlang/IR/AST.o
 
 CURPATH = 	$(shell pwd)
 INCLUDE =		$(CURPATH)/include

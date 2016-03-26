@@ -6,8 +6,11 @@
 #include "Token.hpp"
 #include "Lexer.hpp"
 #include "DnLexer.hpp"
+#include "AST.hpp"
 #include "Parser.hpp"
 #include "DnParser.hpp"
+
+
 #define SPECULATE(x) \
 [this]() { \
   bool success = true; \
@@ -21,19 +24,36 @@
   bool failed = false; \
   int startTokenIndex = index(); \
   if(isSpeculating() && alreadyParsedRule(#x)) return; \
-  if(!isSpeculating()) \
-    std::cout<< "<" << startTokenIndex << "," << #x << ">\n\n"; \
   try { _##fp } \
   catch(std::string &s) { \
     failed = true; \
     if(isSpeculating()) memorize(#x, startTokenIndex, failed); \
-    if(!isSpeculating()) \
-      std::cout<< "[ERROR]</" << startTokenIndex << "," << #x << ">\n\n"; \
     throw s; \
   } \
   if(isSpeculating()) memorize(#x, startTokenIndex, failed); \
-  if(!isSpeculating()) \
-    std::cout<< "</" << startTokenIndex << "," << #x << ">\n\n"; \
+
+#define ADD_TOKEN(type, str) \
+  if(!isSpeculating()) { \
+    AST child(Token(type, str)); \
+    ast_root->addChild(child); \
+  } \
+
+#define ADD_ROOT_CHROOT(root) \
+  if(!isSpeculating()) { \
+    AST child(root); \
+    ast_root = ast_root->addChild(child); \
+  } \
+
+#define ADD_TOKEN_CHROOT(type, str) \
+  if(!isSpeculating()) { \
+    AST child(Token(type, str)); \
+    ast_root = ast_root->addChild(child); \
+  } \
+
+#define BREAK_UP \
+  if(!isSpeculating()) { \
+    ast_root = ast_root->parent; \
+  } \
 
 namespace Dnlang {
   /* type inference
@@ -66,7 +86,9 @@ void DnParser::_ExternalDecl() {
 }
 void DnParser::_FunctionDef() {
   if(SPECULATE( DeclSpecs(); Declarator(); CompoundStat(); )()) {
+    ADD_ROOT_CHROOT(DnLexer::FUNC_DEF)
     DeclSpecs(); Declarator(); CompoundStat();
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -76,7 +98,11 @@ void DnParser::_FunctionDef() {
 }
 void DnParser::_Decl() {
   if(SPECULATE( DeclSpecs(); InitDecl(); match(DnLexer::SEMICORON); )()) {
-    DeclSpecs(); InitDecl(); match(DnLexer::SEMICORON);
+    ADD_ROOT_CHROOT(DnLexer::DECL)
+    DeclSpecs();
+    InitDecl();
+    match(DnLexer::SEMICORON);
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -158,12 +184,21 @@ void DnParser::_InitDecl() {
 }
 void DnParser::_Declarator() {
   if(SPECULATE( match(DnLexer::ID); match(DnLexer::LBRACKA); IdList(); match(DnLexer::RBRACKA); )()) {
-    match(DnLexer::ID); match(DnLexer::LBRACKA); IdList(); match(DnLexer::RBRACKA);
+    ADD_TOKEN(DnLexer::ID, LT(1).text)
+    match(DnLexer::ID);
+    ADD_ROOT_CHROOT(DnLexer::PARAM)
+    match(DnLexer::LBRACKA); IdList(); match(DnLexer::RBRACKA);
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::ID); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA); )()) {
-    match(DnLexer::ID); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA);
+    ADD_TOKEN(DnLexer::ID, LT(1).text)
+    match(DnLexer::ID);
+    ADD_ROOT_CHROOT(DnLexer::PARAM)
+    match(DnLexer::LBRACKA); match(DnLexer::RBRACKA);
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::ID); )()) {
+      ADD_TOKEN(DnLexer::ID, LT(1).text)
       match(DnLexer::ID);
   }
   else {
@@ -174,9 +209,12 @@ void DnParser::_Declarator() {
 }
 void DnParser::_IdList() {
   if(SPECULATE( match(DnLexer::ID); match(DnLexer::COMMA); IdList(); )()) {
-    match(DnLexer::ID); match(DnLexer::COMMA); IdList();
+    ADD_TOKEN(DnLexer::ID, LT(1).text)
+    match(DnLexer::ID);
+    match(DnLexer::COMMA); IdList();
   }
   else if(SPECULATE( match(DnLexer::ID); )()) {
+    ADD_TOKEN(DnLexer::ID, LT(1).text)
     match(DnLexer::ID);
   }
   else {
@@ -232,16 +270,24 @@ void DnParser::_ExpStat() {
 }
 void DnParser::_CompoundStat() {
   if(SPECULATE( match(DnLexer::LBRACKB); match(DnLexer::RBRACKB); )()) {
+    ADD_ROOT_CHROOT(DnLexer::BLOCK)
     match(DnLexer::LBRACKB); match(DnLexer::RBRACKB);
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::LBRACKB); DeclList(); StatList(); match(DnLexer::RBRACKB); )()) {
+    ADD_ROOT_CHROOT(DnLexer::BLOCK)
     match(DnLexer::LBRACKB); DeclList(); StatList(); match(DnLexer::RBRACKB);
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::LBRACKB); DeclList(); match(DnLexer::RBRACKB); )()) {
+    ADD_ROOT_CHROOT(DnLexer::BLOCK)
     match(DnLexer::LBRACKB); DeclList(); match(DnLexer::RBRACKB);
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::LBRACKB); StatList(); match(DnLexer::RBRACKB); )()) {
+    ADD_ROOT_CHROOT(DnLexer::BLOCK)
     match(DnLexer::LBRACKB); StatList(); match(DnLexer::RBRACKB);
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -264,11 +310,17 @@ void DnParser::_StatList() {
 }
 void DnParser::_SelectionStat() {
   if(SPECULATE( match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); match(DnLexer::ELSE); Stat(); )()) {
-    match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
+    match(DnLexer::IF);
+    ADD_TOKEN_CHROOT(DnLexer::IF, "IF")
+    match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
     match(DnLexer::ELSE); Stat();
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
-    match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
+    match(DnLexer::IF);
+    ADD_TOKEN_CHROOT(DnLexer::IF, "IF")
+    match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -278,14 +330,20 @@ void DnParser::_SelectionStat() {
 }
 void DnParser::_IterationStat() {
   if(SPECULATE( match(DnLexer::WHILE); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
-    match(DnLexer::WHILE); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
+    match(DnLexer::WHILE);
+    ADD_TOKEN_CHROOT(DnLexer::WHILE, "WHILE")
+    match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::FOR); match(DnLexer::LBRACKA); Exp(); match(DnLexer::SEMICORON); Exp(); match(DnLexer::SEMICORON); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
-    match(DnLexer::FOR); match(DnLexer::LBRACKA);
+    match(DnLexer::FOR);
+    ADD_TOKEN_CHROOT(DnLexer::FOR, "FOR")
+    match(DnLexer::LBRACKA);
     Exp(); match(DnLexer::SEMICORON);
     Exp(); match(DnLexer::SEMICORON);
     Exp();
     match(DnLexer::RBRACKA); Stat();
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -296,16 +354,25 @@ void DnParser::_IterationStat() {
 }
 void DnParser::_JumpStat() {
   if(SPECULATE( match(DnLexer::CONTINUE); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::CONTINUE); match(DnLexer::SEMICORON);
+    match(DnLexer::CONTINUE);
+    ADD_TOKEN(DnLexer::CONTINUE, "CONTINUE")
+    match(DnLexer::SEMICORON);
   }
   else if(SPECULATE( match(DnLexer::BREAK); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::BREAK); match(DnLexer::SEMICORON);
+    match(DnLexer::BREAK);
+    ADD_TOKEN(DnLexer::BREAK, "BREAK")
+    match(DnLexer::SEMICORON);
   }
   else if(SPECULATE( match(DnLexer::RETURN); Exp(); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::RETURN); Exp(); match(DnLexer::SEMICORON);
+    match(DnLexer::RETURN);
+    ADD_TOKEN_CHROOT(DnLexer::RETURN, "RETURN")
+    Exp(); match(DnLexer::SEMICORON);
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::RETURN); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::RETURN); match(DnLexer::SEMICORON);
+    match(DnLexer::RETURN);
+    ADD_TOKEN(DnLexer::RETURN, "RETURN")
+    match(DnLexer::SEMICORON);
   }
   else {
     std::stringstream error;
@@ -329,6 +396,7 @@ void DnParser::_Exp() {
 void DnParser::_AssignExp() {
   if(SPECULATE( UnaryExp(); AssignOperator(); AssignExp(); )()) {
     UnaryExp(); AssignOperator(); AssignExp();
+    BREAK_UP
   }
   else if(SPECULATE( ConditionalExp(); )()) {
     ConditionalExp();
@@ -342,30 +410,39 @@ void DnParser::_AssignExp() {
 void DnParser::_AssignOperator() {
   if(SPECULATE( match(DnLexer::EQUAL); )()) {
     match(DnLexer::EQUAL);
+    ADD_TOKEN_CHROOT(DnLexer::EQUAL, "=")
   }
   else if(SPECULATE( match(DnLexer::MULASSIGN); )()) {
     match(DnLexer::MULASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::MULASSIGN, "*=")
   }
   else if(SPECULATE( match(DnLexer::DIVASSIGN); )()) {
     match(DnLexer::DIVASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::DIVASSIGN, "/=")
   }
   else if(SPECULATE( match(DnLexer::MODASSIGN); )()) {
     match(DnLexer::MODASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::MODASSIGN, "%=")
   }
   else if(SPECULATE( match(DnLexer::PLUSASSIGN); )()) {
     match(DnLexer::PLUSASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::PLUSASSIGN, "+=")
   }
   else if(SPECULATE( match(DnLexer::MINUSASSIGN); )()) {
     match(DnLexer::MINUSASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::MINUSASSIGN, "-=")
   }
   else if(SPECULATE( match(DnLexer::ANDASSIGN); )()) {
     match(DnLexer::ANDASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::ANDASSIGN, "&=")
   }
   else if(SPECULATE( match(DnLexer::ORASSIGN); )()) {
     match(DnLexer::ORASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::ORASSIGN, "|=")
   }
   else if(SPECULATE( match(DnLexer::XORASSIGN); )()) {
     match(DnLexer::XORASSIGN);
+    ADD_TOKEN_CHROOT(DnLexer::XORASSIGN, "^=")
   }
   else {
     std::stringstream error;
@@ -388,7 +465,9 @@ void DnParser::_LogicalOrExp() {
     LogicalAndExp();
   }
   else if(SPECULATE( LogicalAndExp(); match(DnLexer::OROR); LogicalOrExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::OROR, "||")
     LogicalAndExp(); match(DnLexer::OROR); LogicalOrExp();
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -398,7 +477,9 @@ void DnParser::_LogicalOrExp() {
 }
 void DnParser::_LogicalAndExp() {
   if(SPECULATE( InclusiveOrExp(); match(DnLexer::ANDAND); LogicalAndExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::ANDAND, "&&")
     InclusiveOrExp(); match(DnLexer::ANDAND); LogicalAndExp();
+    BREAK_UP
   }
   else if(SPECULATE( InclusiveOrExp(); )()) {
     InclusiveOrExp();
@@ -411,7 +492,9 @@ void DnParser::_LogicalAndExp() {
 }
 void DnParser::_InclusiveOrExp() {
   if(SPECULATE( ExclusiveOrExp(); match(DnLexer::OR); InclusiveOrExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::OR, "|")
     ExclusiveOrExp(); match(DnLexer::OR); InclusiveOrExp();
+    BREAK_UP
   }
   else if(SPECULATE( ExclusiveOrExp(); )()) {
     ExclusiveOrExp();
@@ -424,7 +507,9 @@ void DnParser::_InclusiveOrExp() {
 }
 void DnParser::_ExclusiveOrExp() {
   if(SPECULATE( AndExp(); match(DnLexer::XOR); ExclusiveOrExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::XOR, "^")
     AndExp(); match(DnLexer::XOR); ExclusiveOrExp();
+    BREAK_UP
   }
   else if(SPECULATE( AndExp(); )()) {
     AndExp();
@@ -438,7 +523,9 @@ void DnParser::_ExclusiveOrExp() {
 }
 void DnParser::_AndExp() {
   if(SPECULATE( EqualityExp(); match(DnLexer::AND); AndExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::AND, "&")
     EqualityExp(); match(DnLexer::AND); AndExp();
+    BREAK_UP
   }
   else if(SPECULATE( EqualityExp(); )()) {
     EqualityExp();
@@ -451,10 +538,14 @@ void DnParser::_AndExp() {
 }
 void DnParser::_EqualityExp() {
   if(SPECULATE( RelationalExp(); match(DnLexer::EQUALEQUAL); EqualityExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::EQUALEQUAL, "==")
     RelationalExp(); match(DnLexer::EQUALEQUAL); EqualityExp();
+    BREAK_UP
   }
   else if(SPECULATE( RelationalExp(); match(DnLexer::NOTEQUAL); EqualityExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::NOTEQUAL, "!=")
     RelationalExp(); match(DnLexer::NOTEQUAL); EqualityExp();
+    BREAK_UP
   }
   else if(SPECULATE( RelationalExp(); )()) {
     RelationalExp();
@@ -467,16 +558,24 @@ void DnParser::_EqualityExp() {
 }
 void DnParser::_RelationalExp() {
   if(SPECULATE( ShiftExp(); match(DnLexer::LESS); RelationalExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::LESS, "<")
     ShiftExp(); match(DnLexer::LESS); RelationalExp();
+    BREAK_UP
   }
   else if(SPECULATE( ShiftExp(); match(DnLexer::ABOVE); RelationalExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::ABOVE, ">")
     ShiftExp(); match(DnLexer::ABOVE); RelationalExp();
+    BREAK_UP
   }
   else if(SPECULATE( ShiftExp(); match(DnLexer::LESSEQUAL); RelationalExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::LESSEQUAL, "<=")
     ShiftExp(); match(DnLexer::LESSEQUAL); RelationalExp();
+    BREAK_UP
   }
   else if(SPECULATE( ShiftExp(); match(DnLexer::ABOVEEQUAL); RelationalExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::ABOVEEQUAL, ">=")
     ShiftExp(); match(DnLexer::ABOVEEQUAL); RelationalExp();
+    BREAK_UP
   }
   else if(SPECULATE( ShiftExp(); )()) {
     ShiftExp();
@@ -489,10 +588,14 @@ void DnParser::_RelationalExp() {
 }
 void DnParser::_ShiftExp() {
   if(SPECULATE( AdditiveExp(); match(DnLexer::LESSLESS); ShiftExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::LESSLESS, "<<")
     AdditiveExp(); match(DnLexer::LESSLESS); ShiftExp();
+    BREAK_UP
   }
   else if(SPECULATE( AdditiveExp(); match(DnLexer::ABOVEABOVE); ShiftExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::ABOVEABOVE, ">>")
     AdditiveExp(); match(DnLexer::ABOVEABOVE); ShiftExp();
+    BREAK_UP
   }
   else if(SPECULATE( AdditiveExp(); )()) {
     AdditiveExp();
@@ -505,10 +608,14 @@ void DnParser::_ShiftExp() {
 }
 void DnParser::_AdditiveExp() {
   if(SPECULATE( MultExp(); match(DnLexer::PLUS); AdditiveExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::PLUS, "+")
     MultExp(); match(DnLexer::PLUS); AdditiveExp();
+    BREAK_UP
   }
   else if(SPECULATE( MultExp(); match(DnLexer::MINUS); AdditiveExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::MINUS, "-")
     MultExp(); match(DnLexer::MINUS); AdditiveExp();
+    BREAK_UP
   }
   else if(SPECULATE( MultExp(); )()) {
     MultExp();
@@ -521,13 +628,19 @@ void DnParser::_AdditiveExp() {
 }
 void DnParser::_MultExp() {
   if(SPECULATE( UnaryExp(); match(DnLexer::MUL); MultExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::MUL, "*")
     UnaryExp(); match(DnLexer::MUL); MultExp();
+    BREAK_UP
   }
   else if(SPECULATE( UnaryExp(); match(DnLexer::DIV); MultExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::DIV, "/")
     UnaryExp(); match(DnLexer::DIV); MultExp();
+    BREAK_UP
   }
   else if(SPECULATE( UnaryExp(); match(DnLexer::MOD); MultExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::MOD, "%")
     UnaryExp(); match(DnLexer::MOD); MultExp();
+    BREAK_UP
   }
   else if(SPECULATE( UnaryExp(); )()) {
     UnaryExp();
@@ -543,13 +656,18 @@ void DnParser::_UnaryExp() {
     PostfixExp();
   }
   else if(SPECULATE( match(DnLexer::PLUSPLUS); UnaryExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::PLUSPLUS, "++")
     match(DnLexer::PLUSPLUS); UnaryExp();
+    BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::MINUSMINUS); UnaryExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::MINUSMINUS, "--")
     match(DnLexer::MINUSMINUS); UnaryExp();
+    BREAK_UP
   }
   else if(SPECULATE( UnaryOperator(); UnaryExp(); )()) {
     UnaryOperator(); UnaryExp();
+    BREAK_UP
   }
   else {
     std::stringstream error;
@@ -559,12 +677,15 @@ void DnParser::_UnaryExp() {
 }
 void DnParser::_UnaryOperator() {
   if(SPECULATE( match(DnLexer::PLUS); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::PLUS, "+")
     match(DnLexer::PLUS);
   }
   else if(SPECULATE( match(DnLexer::MINUS); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::MINUS, "-")
     match(DnLexer::MINUS);
   }
   else if(SPECULATE( match(DnLexer::NOT); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::NOT, "!")
     match(DnLexer::NOT);
   }
   else {
@@ -575,19 +696,19 @@ void DnParser::_UnaryOperator() {
 }
 void DnParser::_PostfixExp() {
   if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACK); Exp(); match(DnLexer::RBRACK); )()) {
+    ADD_ROOT_CHROOT(DnLexer::AREF)
     PrimaryExp(); match(DnLexer::LBRACK); Exp(); match(DnLexer::RBRACK);
+    BREAK_UP
   }
   else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACKA); ArgumentExpList(); match(DnLexer::RBRACKA); )()) {
+    ADD_ROOT_CHROOT(DnLexer::CALL)
     PrimaryExp(); match(DnLexer::LBRACKA); ArgumentExpList(); match(DnLexer::RBRACKA);
+    BREAK_UP
   }
   else if(SPECULATE( PrimaryExp(); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA); )()) {
+    ADD_ROOT_CHROOT(DnLexer::CALL)
     PrimaryExp(); match(DnLexer::LBRACKA); match(DnLexer::RBRACKA);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::PLUSPLUS); )()) {
-    PrimaryExp(); match(DnLexer::PLUSPLUS);
-  }
-  else if(SPECULATE( PrimaryExp(); match(DnLexer::MINUSMINUS); )()) {
-    PrimaryExp(); match(DnLexer::MINUSMINUS);
+    BREAK_UP
   }
   else if(SPECULATE( PrimaryExp(); )()) {
     PrimaryExp();
@@ -601,12 +722,14 @@ void DnParser::_PostfixExp() {
 }
 void DnParser::_PrimaryExp() {
   if(SPECULATE( match(DnLexer::ID); )()) {
+    ADD_TOKEN(DnLexer::ID, LT(1).text);
     match(DnLexer::ID);
   }
   else if(SPECULATE( Const(); )()) {
     Const();
   }
   else if(SPECULATE( match(DnLexer::STRING); )()) {
+    ADD_TOKEN(DnLexer::STRING, LT(1).text);
     match(DnLexer::STRING);
   }
   else if(SPECULATE( match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); )()) {
@@ -633,12 +756,15 @@ void DnParser::_ArgumentExpList() {
 }
 void DnParser::_Const() {
   if(SPECULATE( match(DnLexer::INTCONST); )()) {
+    ADD_TOKEN(DnLexer::INTCONST, LT(1).text);
     match(DnLexer::INTCONST);
   }
   else if(SPECULATE( match(DnLexer::CHARCONST); )()) {
+    ADD_TOKEN(DnLexer::CHARCONST, LT(1).text);
     match(DnLexer::CHARCONST);
   }
   else if(SPECULATE( match(DnLexer::FLOATCONST); )()) {
+    ADD_TOKEN(DnLexer::FLOATCONST, LT(1).text);
     match(DnLexer::FLOATCONST);
   }
   else {

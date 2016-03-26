@@ -49,6 +49,9 @@ const std::string DnLexer::token_names[] = {
   "OROR", "OR", "ANDAND", "AND", "XOR", "NOT", "PLUS", "MINUS", "MUL", "DIV", "MOD",
   "LESSLESS", "ABOVEABOVE", "PLUSPLUS", "MINUSMINUS", "EQUAL", "EQUALEQUAL", "NOTEQUAL",
   "LESS", "LESSEQUAL", "ABOVE", "ABOVEEQUAL",
+  /* virtual token for AST */
+  "FUNC_DEF", "DECL", "AREF", "CALL", "PARAM",
+  "INITIALIZER", "EXP", "BLOCK", "UNARYEXP", "PRIMARYEXP",
 };
 
 const std::string DnLexer::reserved[] = {

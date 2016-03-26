@@ -1,0 +1,97 @@
+## AST
+<function_def>
+(FUNC_DEF  
+	id 		# <id>
+	(PARAM id id..) # <id_list>
+	(BLOCK ...)	# <compound_stat>
+)
+<decl>
+(DECL 
+	id		# <id>
+	(+ x y)		# <exp> 
+)
+<compound_stat>
+(BLOCK
+	(DECL ...)	# <decl>
+	(DECL ...)	# <decl>
+	(IF ...)	# <selection_stat>
+	(WHILE ...)	# <iteration_stat>
+	(FOR ...)	# <iteration_stat>
+	(CONTINUE) 	# <jump_stat>
+	(BREAK) 	# <jump_stat>
+	(RETURN ...) 	# <jump_stat>
+	(= (+ (|| (&& x y) (&& y z)) 3)...) # <exp>
+	(BLOCK ...)	# <compound_stat>
+)
+<selection_stat>
+(IF 
+	(<= x y) 	# <exp>
+	(BLOCK ...) 	# <stat>
+	(++ x) 		# <stat>
+)
+
+<iteration_stat>
+(WHILE
+	(<= x y) 	# <exp>
+	(BLOCK ...) 	# <stat>
+	(++ x) 		# <stat>
+)
+(FOR
+	(= x 0) 	# <exp>
+	(<= x y) 	# <exp>
+	(++ x) 		# <exp>
+	(BLOCK ...) 	# <stat>
+)
+
+<jump_stat>
+(RETURN
+	(++ x) 		# <exp>
+)
+(RETURN)
+(BREAK)
+(CONTINUE)
+
+<postfix_exp>
+(AREF
+	id 		# <id>
+	exp		# <exp>
+) # id[exp]
+(CALL
+	id		# <id>
+	(arg1 arg2...)	
+)
+
+<logical_or_exp>
+(|| x y)
+<logical_and_exp>
+(&& x y)
+<inclusive_or_exp>
+(| x y)
+<exclusive_or_exp>
+(^ x y)
+<and_exp>
+(& x y)
+<equality_exp>
+(== x y)
+(!= x y)
+<relational_exp> 
+(< x y)
+(> x y)
+(<= x y)
+(>= x y)
+<shift_exp>
+(<< x y)
+(>> x y)
+<additive_exp>
+(+ x y)
+(- x y)
+<mult_exp>
+(* x y)
+(/ x y)
+(% x y)
+<unary_exp>
+(++ x y)
+(-- x y)
+(+ x)
+(- x)
+(! x)

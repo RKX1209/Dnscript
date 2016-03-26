@@ -15,7 +15,7 @@ function Initialize() {
 function @MainLoop() {
     SetCollisionA(GetX, GetY, 24);
     SetCollisionB(GetX, GetY, 24);
-    frame++;
+    ++frame;
     if(frame == 30) {
         nway(angleBase, 3, 5, YELLOW01);
         angleBase += 8;
@@ -39,7 +39,7 @@ function nway(dir, way, span, color) {
         let y = GetY + offsetY(radius, angle);
         CreateShot01(x, y, 1, angle, color, 0);
         angle += span;
-        way--;
+        --way;
     }
 }
 function offsetX(radius, angle) {
