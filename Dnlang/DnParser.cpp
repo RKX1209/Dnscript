@@ -6,6 +6,8 @@
 #include "Token.hpp"
 #include "Lexer.hpp"
 #include "DnLexer.hpp"
+#include "Symbol.hpp"
+#include "Scope.hpp"
 #include "AST.hpp"
 #include "Parser.hpp"
 #include "DnParser.hpp"
@@ -34,20 +36,20 @@
 
 #define ADD_TOKEN(type, str) \
   if(!isSpeculating()) { \
-    AST child(Token(type, str)); \
-    ast_root->addChild(child); \
+    AST *child= new AST(Token(type, str)); \
+    ast_root->addChild(ast_root, child); \
   } \
 
 #define ADD_ROOT_CHROOT(root) \
   if(!isSpeculating()) { \
-    AST child(root); \
-    ast_root = ast_root->addChild(child); \
+    AST *child = new AST(root); \
+    ast_root = ast_root->addChild(ast_root, child); \
   } \
 
 #define ADD_TOKEN_CHROOT(type, str) \
   if(!isSpeculating()) { \
-    AST child(Token(type, str)); \
-    ast_root = ast_root->addChild(child); \
+    AST *child = new AST(Token(type, str)); \
+    ast_root = ast_root->addChild(ast_root, child); \
   } \
 
 #define BREAK_UP \
@@ -310,15 +312,15 @@ void DnParser::_StatList() {
 }
 void DnParser::_SelectionStat() {
   if(SPECULATE( match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); match(DnLexer::ELSE); Stat(); )()) {
-    match(DnLexer::IF);
     ADD_TOKEN_CHROOT(DnLexer::IF, "IF")
+    match(DnLexer::IF);
     match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
     match(DnLexer::ELSE); Stat();
     BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::IF); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
-    match(DnLexer::IF);
     ADD_TOKEN_CHROOT(DnLexer::IF, "IF")
+    match(DnLexer::IF);
     match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
     BREAK_UP
   }
@@ -330,14 +332,14 @@ void DnParser::_SelectionStat() {
 }
 void DnParser::_IterationStat() {
   if(SPECULATE( match(DnLexer::WHILE); match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
-    match(DnLexer::WHILE);
     ADD_TOKEN_CHROOT(DnLexer::WHILE, "WHILE")
+    match(DnLexer::WHILE);
     match(DnLexer::LBRACKA); Exp(); match(DnLexer::RBRACKA); Stat();
     BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::FOR); match(DnLexer::LBRACKA); Exp(); match(DnLexer::SEMICORON); Exp(); match(DnLexer::SEMICORON); Exp(); match(DnLexer::RBRACKA); Stat(); )()) {
-    match(DnLexer::FOR);
     ADD_TOKEN_CHROOT(DnLexer::FOR, "FOR")
+    match(DnLexer::FOR);
     match(DnLexer::LBRACKA);
     Exp(); match(DnLexer::SEMICORON);
     Exp(); match(DnLexer::SEMICORON);
@@ -354,24 +356,24 @@ void DnParser::_IterationStat() {
 }
 void DnParser::_JumpStat() {
   if(SPECULATE( match(DnLexer::CONTINUE); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::CONTINUE);
     ADD_TOKEN(DnLexer::CONTINUE, "CONTINUE")
+    match(DnLexer::CONTINUE);
     match(DnLexer::SEMICORON);
   }
   else if(SPECULATE( match(DnLexer::BREAK); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::BREAK);
     ADD_TOKEN(DnLexer::BREAK, "BREAK")
+    match(DnLexer::BREAK);
     match(DnLexer::SEMICORON);
   }
   else if(SPECULATE( match(DnLexer::RETURN); Exp(); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::RETURN);
     ADD_TOKEN_CHROOT(DnLexer::RETURN, "RETURN")
+    match(DnLexer::RETURN);
     Exp(); match(DnLexer::SEMICORON);
     BREAK_UP
   }
   else if(SPECULATE( match(DnLexer::RETURN); match(DnLexer::SEMICORON); )()) {
-    match(DnLexer::RETURN);
     ADD_TOKEN(DnLexer::RETURN, "RETURN")
+    match(DnLexer::RETURN);
     match(DnLexer::SEMICORON);
   }
   else {
@@ -409,32 +411,32 @@ void DnParser::_AssignExp() {
 }
 void DnParser::_AssignOperator() {
   if(SPECULATE( match(DnLexer::EQUAL); )()) {
-    match(DnLexer::EQUAL);
     ADD_TOKEN_CHROOT(DnLexer::EQUAL, "=")
+    match(DnLexer::EQUAL);
   }
   else if(SPECULATE( match(DnLexer::MULASSIGN); )()) {
-    match(DnLexer::MULASSIGN);
     ADD_TOKEN_CHROOT(DnLexer::MULASSIGN, "*=")
+    match(DnLexer::MULASSIGN);
   }
   else if(SPECULATE( match(DnLexer::DIVASSIGN); )()) {
-    match(DnLexer::DIVASSIGN);
     ADD_TOKEN_CHROOT(DnLexer::DIVASSIGN, "/=")
+    match(DnLexer::DIVASSIGN);
   }
   else if(SPECULATE( match(DnLexer::MODASSIGN); )()) {
-    match(DnLexer::MODASSIGN);
     ADD_TOKEN_CHROOT(DnLexer::MODASSIGN, "%=")
+    match(DnLexer::MODASSIGN);
   }
   else if(SPECULATE( match(DnLexer::PLUSASSIGN); )()) {
-    match(DnLexer::PLUSASSIGN);
     ADD_TOKEN_CHROOT(DnLexer::PLUSASSIGN, "+=")
+    match(DnLexer::PLUSASSIGN);
   }
   else if(SPECULATE( match(DnLexer::MINUSASSIGN); )()) {
-    match(DnLexer::MINUSASSIGN);
     ADD_TOKEN_CHROOT(DnLexer::MINUSASSIGN, "-=")
+    match(DnLexer::MINUSASSIGN);
   }
   else if(SPECULATE( match(DnLexer::ANDASSIGN); )()) {
-    match(DnLexer::ANDASSIGN);
     ADD_TOKEN_CHROOT(DnLexer::ANDASSIGN, "&=")
+    match(DnLexer::ANDASSIGN);
   }
   else if(SPECULATE( match(DnLexer::ORASSIGN); )()) {
     match(DnLexer::ORASSIGN);

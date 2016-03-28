@@ -2,15 +2,27 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <map>
 #include "Token.hpp"
+#include "Symbol.hpp"
+#include "Scope.hpp"
 #include "AST.hpp"
+#include "Symbols.hpp"
+
+namespace Dnlang {
 
 std::string AST::toString() {
+  if(symbol) return symbol->toString();
+  if(scope) return scope->getScopeName();
   return !isNil()?token.toString():"nil";
 }
 
 std::string AST::toStringTree(int depth) {
-  if(children.size() == 0) return this->toString();
+  if(children.size() == 0) {
+    //std::string pstr = "[" + this->parent->toString() + "]";
+    return this->toString();
+  }
+  //if(children.size() == 0) return this->toString();
   std::string buf;
   if(!isNil()) {
     if(token.text == "") {
@@ -19,15 +31,19 @@ std::string AST::toStringTree(int depth) {
       buf += align;
     }
     buf += "(";
+    //buf += "[" + this->parent->toString() + "]";
     buf += this->toString();
     buf += " ";
   }
-  //std::cout << buf << std::endl;
+  //std::cout << "<buf>" << buf << std::endl;
   for(int i = 0; i < children.size(); i++) {
-    AST t = (AST)children[i];
+    AST *t = children[i];
     if(i > 0) buf += " ";
-    buf += t.toStringTree(depth + 1);
+    buf += t->toStringTree(depth + 1);
   }
   if(!isNil()) buf += ")";
+  //std::cout << "</buf>" << buf << std::endl;
   return buf;
+}
+
 }

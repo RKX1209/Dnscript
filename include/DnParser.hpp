@@ -9,6 +9,7 @@ public:
   DnParser(std::string script) : Parser(script) {
     dnlexer = new DnLexer(script);
     ast_root = new AST();
+    ast_root->scope = new GlobalScope();
     input = dnlexer;
   }
   ~DnParser() {

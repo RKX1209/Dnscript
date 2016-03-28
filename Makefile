@@ -6,7 +6,8 @@ OBJS		=		Main.o Dnscript.o Title.o Select.o Game.o \
 						test/player_test.o test/enemy_test.o\
 
 DN_OBJS =	  Dnlang/Lexer.o Dnlang/DnLexer.o Dnlang/Token.o Dnlang/Parser.o \
-						Dnlang/DnParser.o Dnlang/IR/AST.o
+						Dnlang/DnParser.o Dnlang/Scope.o Dnlang/Symbol.o Dnlang/Symbols.o \
+						Dnlang/IR/AST.o Dnlang/IR/ASTVisitor.o \
 
 CURPATH = 	$(shell pwd)
 INCLUDE =		$(CURPATH)/include
@@ -29,6 +30,9 @@ CHKSEC	=		$(shell which checksec.sh)
 
 all:
 	$(MAKE) $(DNSCRIPT)
+	$(MAKE) $(DNTEST)
+
+Dntest:
 	$(MAKE) $(DNTEST)
 
 $(DNSCRIPT) : $(OBJS) $(DN_OBJS)
