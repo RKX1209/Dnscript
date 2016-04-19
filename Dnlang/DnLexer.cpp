@@ -50,7 +50,7 @@ const std::string DnLexer::token_names[] = {
   "LESSLESS", "ABOVEABOVE", "PLUSPLUS", "MINUSMINUS", "EQUAL", "EQUALEQUAL", "NOTEQUAL",
   "LESS", "LESSEQUAL", "ABOVE", "ABOVEEQUAL",
   /* virtual token for AST */
-  "FUNC_DEF", "DECL", "AREF", "CALL", "PARAM",
+  "FUNC_DEF", "DECL", "AREF", "CALL", "PARAM", "ASSIGN",
   "INITIALIZER", "EXP", "BLOCK", "UNARYEXP", "PRIMARYEXP",
 };
 

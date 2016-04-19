@@ -397,6 +397,7 @@ void DnParser::_Exp() {
 }
 void DnParser::_AssignExp() {
   if(SPECULATE( UnaryExp(); AssignOperator(); AssignExp(); )()) {
+    ADD_TOKEN_CHROOT(DnLexer::ASSIGN, "ASSIGN");
     UnaryExp(); AssignOperator(); AssignExp();
     BREAK_UP
   }
@@ -411,40 +412,40 @@ void DnParser::_AssignExp() {
 }
 void DnParser::_AssignOperator() {
   if(SPECULATE( match(DnLexer::EQUAL); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::EQUAL, "=")
+    ADD_TOKEN(DnLexer::EQUAL, "=")
     match(DnLexer::EQUAL);
   }
   else if(SPECULATE( match(DnLexer::MULASSIGN); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::MULASSIGN, "*=")
+    ADD_TOKEN(DnLexer::MULASSIGN, "*=")
     match(DnLexer::MULASSIGN);
   }
   else if(SPECULATE( match(DnLexer::DIVASSIGN); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::DIVASSIGN, "/=")
+    ADD_TOKEN(DnLexer::DIVASSIGN, "/=")
     match(DnLexer::DIVASSIGN);
   }
   else if(SPECULATE( match(DnLexer::MODASSIGN); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::MODASSIGN, "%=")
+    ADD_TOKEN(DnLexer::MODASSIGN, "%=")
     match(DnLexer::MODASSIGN);
   }
   else if(SPECULATE( match(DnLexer::PLUSASSIGN); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::PLUSASSIGN, "+=")
+    ADD_TOKEN(DnLexer::PLUSASSIGN, "+=")
     match(DnLexer::PLUSASSIGN);
   }
   else if(SPECULATE( match(DnLexer::MINUSASSIGN); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::MINUSASSIGN, "-=")
+    ADD_TOKEN(DnLexer::MINUSASSIGN, "-=")
     match(DnLexer::MINUSASSIGN);
   }
   else if(SPECULATE( match(DnLexer::ANDASSIGN); )()) {
-    ADD_TOKEN_CHROOT(DnLexer::ANDASSIGN, "&=")
+    ADD_TOKEN(DnLexer::ANDASSIGN, "&=")
     match(DnLexer::ANDASSIGN);
   }
   else if(SPECULATE( match(DnLexer::ORASSIGN); )()) {
     match(DnLexer::ORASSIGN);
-    ADD_TOKEN_CHROOT(DnLexer::ORASSIGN, "|=")
+    ADD_TOKEN(DnLexer::ORASSIGN, "|=")
   }
   else if(SPECULATE( match(DnLexer::XORASSIGN); )()) {
     match(DnLexer::XORASSIGN);
-    ADD_TOKEN_CHROOT(DnLexer::XORASSIGN, "^=")
+    ADD_TOKEN(DnLexer::XORASSIGN, "^=")
   }
   else {
     std::stringstream error;
