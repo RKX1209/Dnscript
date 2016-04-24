@@ -14,7 +14,8 @@
                       |    <declarator> 
 <declarator>        ::=    <id> "(" <id_list> ")"
                       |    <id> "("           ")"
-                      |    <id>
+                      |    <id> "["<int_const>"]"
+		      |    <id>
 <id_list>           ::=    <id> "," <id_list>
                       |    <id>
 <initializer>       ::=    <assign_exp>

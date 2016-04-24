@@ -1,0 +1,33 @@
+## 3_address code
+
+<assign>    ::=   <l-val> '=' <r-val>
+<l-val>     ::=   <addr>
+            |     '*' <addr>
+<r-val>     ::=   <operation>
+            
+# x = y op z, x = op y, x = y
+<operation> ::=   <addr> <arth> <addr>
+            |     <unary> <addr>
+            |     <addr>
+<arth>      ::=   '+' | '-' | '*'
+<unary>     ::=   '-' | '~' | '*' | '&'
+
+# goto L
+<jump>      ::=   'goto' <label>
+
+# if t < v goto L
+<cond_jump> ::=   'if' <cond> 'goto' <label>
+<cond>      ::=   <addr> <rel> <addr>
+<rel>       ::=   '<' | '<=' | '>' | '>=' | '=='
+
+# param x_1
+# param x_2
+# call  func, 2
+<call_func> ::=   <params> <call>
+<params>    ::=   <param> <params>
+<param>     ::=   'param' <addr>
+<call>      ::=   <addr> '=' 'call' <label> <decimal>
+            |     'call' <label> <decimal>
+
+<addr>      ::=   <symbol>
+            |     <symbol> '[' <decimal> ']'

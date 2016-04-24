@@ -1,14 +1,14 @@
 ## AST
 <function_def>
-(FUNC_DEF  
+(FUNC_DEF
 	id 		# <id>
 	(PARAM id id..) # <id_list>
 	(BLOCK ...)	# <compound_stat>
 )
 <decl>
-(DECL 
+(DECL
 	id		# <id>
-	(+ x y)		# <exp> 
+	(+ x y)		# <exp>
 )
 <compound_stat>
 (BLOCK
@@ -24,7 +24,7 @@
 	(BLOCK ...)	# <compound_stat>
 )
 <selection_stat>
-(IF 
+(IF
 	(<= x y) 	# <exp>
 	(BLOCK ...) 	# <stat>
 	(++ x) 		# <stat>
@@ -34,7 +34,6 @@
 (WHILE
 	(<= x y) 	# <exp>
 	(BLOCK ...) 	# <stat>
-	(++ x) 		# <stat>
 )
 (FOR
 	(= x 0) 	# <exp>
@@ -58,7 +57,14 @@
 ) # id[exp]
 (CALL
 	id		# <id>
-	(arg1 arg2...)	
+	(arg1 arg2...)
+)
+
+<assign_exp> 
+(ASSIGN
+	(++ x)		# <unary_exp>
+	+=		# <assign_operator>
+	(|| (* x y) z)  # <conditional_exp>
 )
 
 <logical_or_exp>
@@ -74,7 +80,7 @@
 <equality_exp>
 (== x y)
 (!= x y)
-<relational_exp> 
+<relational_exp>
 (< x y)
 (> x y)
 (<= x y)
@@ -90,8 +96,8 @@
 (/ x y)
 (% x y)
 <unary_exp>
-(++ x y)
-(-- x y)
+(++ x)
+(-- x)
 (+ x)
 (- x)
 (! x)

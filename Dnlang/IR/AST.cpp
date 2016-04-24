@@ -6,6 +6,7 @@
 #include "Token.hpp"
 #include "Symbol.hpp"
 #include "Scope.hpp"
+#include "Register.hpp"
 #include "AST.hpp"
 #include "Symbols.hpp"
 

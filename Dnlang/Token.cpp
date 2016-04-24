@@ -6,7 +6,12 @@
 #include "DnLexer.hpp"
 
 std::ostream& operator<<(std::ostream& os, const Token& tk) {
-  os << Dnlang::DnLexer::token_names[tk.type] << "," << tk.text;
+  if(tk.type == -1) {
+    os << "root";
+  }
+  else {
+    os << Dnlang::DnLexer::token_names[tk.type] << "," << tk.text;
+  }
 }
 std::string Token::toString() {
   std::stringstream ss;

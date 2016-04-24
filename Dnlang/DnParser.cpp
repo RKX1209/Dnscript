@@ -8,6 +8,7 @@
 #include "DnLexer.hpp"
 #include "Symbol.hpp"
 #include "Scope.hpp"
+#include "Register.hpp"
 #include "AST.hpp"
 #include "Parser.hpp"
 #include "DnParser.hpp"
@@ -69,7 +70,7 @@ void DnParser::_TranslationUnit() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -82,7 +83,7 @@ void DnParser::_ExternalDecl() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -94,7 +95,7 @@ void DnParser::_FunctionDef() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -108,7 +109,7 @@ void DnParser::_Decl() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -121,7 +122,7 @@ void DnParser::_DeclList() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -134,7 +135,7 @@ void DnParser::_DeclSpecs() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -144,7 +145,7 @@ void DnParser::_FuncSpec() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -154,7 +155,7 @@ void DnParser::_TypeSpec() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -167,7 +168,7 @@ void DnParser::_InitDeclList() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -180,7 +181,7 @@ void DnParser::_InitDecl() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -199,13 +200,18 @@ void DnParser::_Declarator() {
     match(DnLexer::LBRACKA); match(DnLexer::RBRACKA);
     BREAK_UP
   }
+  else if(SPECULATE( match(DnLexer::ID); match(DnLexer::LBRACK); match(DnLexer::INTCONST); match(DnLexer::RBRACK); )()) {
+    ADD_TOKEN(DnLexer::ID, LT(1).text)
+    match(DnLexer::ID);
+    /* TODO: Implement declaration of array */
+  }
   else if(SPECULATE( match(DnLexer::ID); )()) {
       ADD_TOKEN(DnLexer::ID, LT(1).text)
       match(DnLexer::ID);
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -221,7 +227,7 @@ void DnParser::_IdList() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -231,7 +237,7 @@ void DnParser::_Initializer() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -253,7 +259,7 @@ void DnParser::_Stat() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -266,7 +272,7 @@ void DnParser::_ExpStat() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -293,7 +299,7 @@ void DnParser::_CompoundStat() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -306,7 +312,7 @@ void DnParser::_StatList() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -326,7 +332,7 @@ void DnParser::_SelectionStat() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -349,7 +355,7 @@ void DnParser::_IterationStat() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 
@@ -378,7 +384,7 @@ void DnParser::_JumpStat() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -391,7 +397,7 @@ void DnParser::_Exp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -406,7 +412,7 @@ void DnParser::_AssignExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -449,7 +455,7 @@ void DnParser::_AssignOperator() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -459,7 +465,7 @@ void DnParser::_ConditionalExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -474,7 +480,7 @@ void DnParser::_LogicalOrExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -489,7 +495,7 @@ void DnParser::_LogicalAndExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -504,7 +510,7 @@ void DnParser::_InclusiveOrExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -519,7 +525,7 @@ void DnParser::_ExclusiveOrExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 
@@ -535,7 +541,7 @@ void DnParser::_AndExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -555,7 +561,7 @@ void DnParser::_EqualityExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -585,7 +591,7 @@ void DnParser::_RelationalExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -605,7 +611,7 @@ void DnParser::_ShiftExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -625,7 +631,7 @@ void DnParser::_AdditiveExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -650,7 +656,7 @@ void DnParser::_MultExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -674,7 +680,7 @@ void DnParser::_UnaryExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -693,7 +699,7 @@ void DnParser::_UnaryOperator() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -718,7 +724,7 @@ void DnParser::_PostfixExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 
@@ -740,7 +746,7 @@ void DnParser::_PrimaryExp() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -753,7 +759,7 @@ void DnParser::_ArgumentExpList() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }
@@ -772,7 +778,7 @@ void DnParser::_Const() {
   }
   else {
     std::stringstream error;
-    error << "Error: " << LT(1);
+    error << "Error: " << LT(1) << LT(2);
     throw error.str();
   }
 }

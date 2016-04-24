@@ -11,9 +11,13 @@ public:
   Scope *scope;
   Symbol *symbol;
   Type evalType;
-  AST() : scope(0), symbol(0), parent(0){ this->token.type = -1; }
-  AST(Token _token) : scope(0), symbol(0), parent(0){ this->token = _token; }
-  AST(int type) : scope(0), symbol(0), parent(0){ this->token = Token(type); }
+  Register *reg;
+  Label *_true, *_false, *_begin, *next; // if, while statement
+  std::string code;
+  int child_idx;
+  AST() : scope(0), symbol(0), parent(0), code("") { this->token.type = -1; this->token.text = ""; }
+  AST(Token _token) : scope(0), symbol(0), parent(0), code("") { this->token = _token; }
+  AST(int type) : scope(0), symbol(0), parent(0), code("") { this->token = Token(type); }
   AST(const AST &ast) {
     token = ast.token; parent = ast.parent;
     evalType = ast.evalType;
@@ -23,6 +27,7 @@ public:
   std::string getNodeText() { return token.text; }
   AST *addChild(AST *_parent, AST *t) {
     t->parent = _parent;
+    t->child_idx = children.size();
     children.push_back(t);
     return children[children.size() - 1];
   }

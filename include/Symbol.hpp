@@ -9,10 +9,12 @@ public:
     INVALID, INT, CHAR, FLOAT, STRING, VOID,
   };
   static const std::string type_names[];
+  static const int type_sizes[];
   int type;
   Type(){ type = INVALID; }
   Type(int _type) : type(_type) {}
   std::string toString() { return type_names[type]; }
+  int getSize() { return type_sizes[type]; }
 };
 
 class Symbol {

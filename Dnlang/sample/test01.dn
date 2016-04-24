@@ -2,6 +2,8 @@ let GetX = 0;
 let GetY = 0; 
 let frame = 0;
 let angleBase = 90;
+let YELLOW01 = 1;
+let WHITE01 = 10;
 function script_enemy_main() {
     let imgBoss   = "script\img\ExRumia.png";
     let frame     =  0;
@@ -9,10 +11,15 @@ function script_enemy_main() {
     return res;
 }
 function Initialize() {
-    let test = script_enemy_main();
-    return test;
+    
 }
 function nway(dir, way, span, color) {
+    way = dir[++span];
+    dir[++span] = way;
+    while(dir[span] > 0) {
+	++span;
+	dir[span] -= dir[span - 1];
+    }
     return;
 }
 function @MainLoop() {
@@ -20,11 +27,14 @@ function @MainLoop() {
     if(frame == 30) {
         nway(angleBase, 3, 5, YELLOW01);
         angleBase += 8;
-    } else if(frame == 60) {
+    } 
+    else { }
+    if(frame == 60) {
         nway(angleBase, 5, 3, WHITE01);
         angleBase += 8;
         frame = 0;
     }
+    else { }
 }
 function @DrawLoop() {
     
