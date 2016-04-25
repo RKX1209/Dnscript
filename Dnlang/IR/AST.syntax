@@ -57,7 +57,9 @@
 ) # id[exp]
 (CALL
 	id		# <id>
-	(arg1 arg2...)
+	arg1 
+	arg2
+	...
 )
 
 <assign_exp> 

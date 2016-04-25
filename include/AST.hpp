@@ -24,6 +24,7 @@ public:
     scope = ast.scope; symbol = ast.symbol;
   }
   int getNodeType() { return token.type; }
+  std::string getRegId();
   std::string getNodeText() { return token.text; }
   AST *addChild(AST *_parent, AST *t) {
     t->parent = _parent;

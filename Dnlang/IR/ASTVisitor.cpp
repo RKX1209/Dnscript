@@ -302,24 +302,29 @@ void CodeGen::exitDecl(AST *decl) {
   AST *left = decl->children[0];
   AST *right = decl->children[1];
   decl->code = left->code + right->code;
-  if (left->getNodeType() == DnLexer::AREF) {
-    /* 1. array[index] = right */
-    std::string array_id = left->children[0]->getNodeText();
-    decl->code += array_id + " [ " + left->reg->getId() + " ] " + " = " +
-                   right->reg->getId() + "\n";
-  }
-  else if (right->getNodeType() == DnLexer::AREF) {
-    /* 2. left = array[index] */
-    std::string array_id = right->children[1]->getNodeText();
-    decl->code += left->reg->getId() + " = " + array_id + " [ " + right->reg->getId() + " ] " + "\n";
-  }
-  else {
+  // if (left->getNodeType() == DnLexer::AREF) {
+  //   /* 1. array[index] = right */
+  //   std::string array_id = left->children[0]->getNodeText();
+  //   decl->code += array_id + " [ " + left->getRegId() + " ] " + " = " +
+  //                  right->getRegId() + "\n";
+  // }
+  // else if (right->getNodeType() == DnLexer::AREF) {
+  //   /* 2. left = array[index] */
+  //   std::string array_id = right->children[1]->getNodeText();
+  //   decl->code += left->reg->getId() + " = " + array_id + " [ " + right->reg->getId() + " ] " + "\n";
+  // }
+  {
     /* 3. left = right */
-    decl->code += left->reg->getId() + "=" + right->reg->getId() + "\n";
+    decl->code += left->getRegId() + "=" + right->getRegId() + "\n";
   }
 }
 void CodeGen::exitReturn(AST *ret) {
-
+  if(ret->children.empty()) ret->code = "ret\n";
+  else {
+    AST *val = ret->children[0];
+    ret->code += val->code;
+    ret->code += "ret " + val->getRegId() + "\n";
+  }
 }
 void CodeGen::exitAref(AST *aref) {
   /* id [E]   <--->   E * sizeof(id) */
@@ -334,6 +339,20 @@ void CodeGen::exitAref(AST *aref) {
 }
 
 void CodeGen::exitCall(AST *call) {
+  /* TODO: Now, ids are only allowed for arguments.
+           Support nested expression in argument. */
+  std::string f_name = call->children[0]->getNodeText();
+  for(int i = 1; i < call->children.size(); i++) {
+    AST *arg = call->children[i];
+    call->code += arg->code + "\n";
+  }
+  for(int i = 1; i < call->children.size(); i++) {
+    AST *arg = call->children[i];
+    call->code += "param " + arg->getRegId() + "\n";
+  }
+  std::stringstream ss;
+  ss << "call " + f_name + " " << call->children.size() - 1 << "\n";
+  call->code += ss.str();
 }
 
 void CodeGen::exitExp(AST *exp) {
@@ -343,17 +362,23 @@ void CodeGen::exitExp(AST *exp) {
     AST *child = exp->children[i];
     exp->code += child->code;
   }
-  if(exp->children.size() <= 1) //unary expression
-    exp->code += exp->reg->getId() + " = " + exp->getNodeText() + exp->children[0]->reg->getId() + "\n";
-  else                          // binary expression
-    exp->code += exp->reg->getId() + " = " + exp->children[0]->reg->getId() +
-                 " " + exp->getNodeText() + " " + exp->children[1]->reg->getId() + "\n";
+  if(exp->children.size() <= 1) {//unary expression
+    if (exp->getNodeType() == DnLexer::PLUSPLUS) {
+      exp->code += exp->children[0]->getRegId() + " = " + exp->children[0]->getRegId() + " + 1\n";
+    } else if (exp->getNodeType() == DnLexer::MINUSMINUS) {
+      exp->code += exp->children[0]->getRegId() + " = " + exp->children[0]->getRegId() + " - 1\n";
+    }
+    exp->code += exp->getRegId() + " = " + exp->children[0]->getRegId() + "\n";
+  } else {                         // binary expression
+    exp->code += exp->getRegId() + " = " + exp->children[0]->getRegId() +
+                 " " + exp->getNodeText() + " " + exp->children[1]->getRegId() + "\n";
+  }
   //std::cout << "exitExp\n" << exp->code <<std::endl;
 }
 
 void CodeGen::exitConst(AST *_const) {
   _const->reg = genReg();
-  _const->code = _const->reg->getId() + " = " + _const->getNodeText() + "\n";
+  _const->code = _const->getRegId() + " = " + _const->getNodeText() + "\n";
   //std::cout << "exitConst\n" << _const->code <<std::endl;
 }
 
@@ -362,22 +387,29 @@ void CodeGen::exitAssign(AST *assign) {
   AST *right = assign->children[2];
   std::string op = assign->children[1]->getNodeText();
   assign->code = left->code + right->code;
-  if (left->getNodeType() == DnLexer::AREF) {
-    /* 1. array[index] = right */
-    std::string array_id = left->children[0]->getNodeText();
-    assign->code += array_id + " [ " + left->reg->getId() + " ] " + " " + op + " " +
-                   right->reg->getId() + "\n";
-  }
-  else if (right->getNodeType() == DnLexer::AREF) {
-    /* 2. left = array[index] */
-    std::string array_id = right->children[0]->getNodeText();
-    assign->code += left->reg->getId() + " " + op + " " + array_id + " [ " + right->reg->getId() + " ] " + "\n";
-  }
-  else {
+  // if (left->getNodeType() == DnLexer::AREF) {
+  //   /* 1. array[index] = right */
+  //   std::string array_id = left->children[0]->getNodeText();
+  //   assign->code += array_id + " [ " + left->reg->getId() + " ] " + " " + op + " " +
+  //                  right->reg->getId() + "\n";
+  // }
+  // else if (right->getNodeType() == DnLexer::AREF) {
+  //   /* 2. left = array[index] */
+  //   std::string array_id = right->children[0]->getNodeText();
+  //   assign->code += left->reg->getId() + " " + op + " " + array_id + " [ " + right->reg->getId() + " ] " + "\n";
+  // }
+  {
     /* 3. left = right */
-    assign->code += left->reg->getId() + " " + op + " " + right->reg->getId() + "\n";
+    if (op.size() == 2) {
+      /* "*=" | "/=" | "%=" | "+=" | "-=" | "&=" | "|=" | "^=" */
+      std::string subop = op.substr(0,1);
+      assign->code += left->getRegId() + " = " + left->getRegId() + " " + subop + " " + right->getRegId() + "\n";
+    } else {
+      assign->code += left->getRegId() + " " + op + " " + right->getRegId() + "\n";
+    }
   }
 }
+
 void CodeGen::enterWhile(AST *loop) {
   AST *c_s = loop->children[0];
   loop->_begin = genLabel();
@@ -410,7 +442,7 @@ void CodeGen::exitIf(AST *cond) {
   cond->code = c_s->code +
                c_s->_true->getId() + ":\n" + t_s->code + "\n" +
                "goto " + n_label->getId() + "\n" +
-               c_s->_false->getId() + ":\n" + t_s->code + "\n" +
+               c_s->_false->getId() + ":\n" + "\n" +
                n_label->getId() + ":\n";
 }
 
@@ -470,7 +502,7 @@ void CodeGen::exitRel(AST *rel) {
   AST *right = rel->children[1];
   rel->code = left->code + "\n" +
               right->code + "\n" +
-              "if " + left->reg->getId() + " " + rel->getNodeText() + " " + right->reg->getId() + " " +
+              "if " + left->getRegId() + " " + rel->getNodeText() + " " + right->getRegId() + " " +
               "goto " + rel->_true->getId() + "\n" +
               "goto " + rel->_false->getId() + "\n";
 }

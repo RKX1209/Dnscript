@@ -4,6 +4,9 @@
 #include <vector>
 #include <map>
 #include "Token.hpp"
+#include "Lexer.hpp"
+#include "DnLexer.hpp"
+#include "Token.hpp"
 #include "Symbol.hpp"
 #include "Scope.hpp"
 #include "Register.hpp"
@@ -45,6 +48,13 @@ std::string AST::toStringTree(int depth) {
   if(!isNil()) buf += ")";
   //std::cout << "</buf>" << buf << std::endl;
   return buf;
+}
+
+std::string AST::getRegId() {
+  if(this->getNodeType() == DnLexer::AREF) {
+    return this->children[0]->reg->getId() + "[ " + this->reg->getId() + " ]";
+  }
+  return reg->getId();
 }
 
 }
