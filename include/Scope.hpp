@@ -3,6 +3,7 @@
 
 namespace Dnlang {
 
+class MethodSymbol;
 class Scope {
 public:
   std::string scopeName;
@@ -19,7 +20,9 @@ public:
 
 class GlobalScope : public Scope {
 public:
-  GlobalScope() : Scope("global", 0) {}
+  static const int api_num = 128;
+  static MethodSymbol *apis[api_num];
+  GlobalScope();
   Scope *getEnclosingScope() { return 0; }
 };
 

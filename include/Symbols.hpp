@@ -12,6 +12,8 @@ class MethodSymbol : public Symbol, public Scope {
 public:
   MethodSymbol(std::string name, Scope *_parent) : Symbol(name, Type::INVALID) , Scope(name, _parent){
   }
+  MethodSymbol(std::string name, Type type, Scope *_parent) : Symbol(name, type) , Scope(name, _parent){
+  }
 };
 
 }

@@ -16,7 +16,8 @@
 #include "ASTVisitor.hpp"
 
 int main() {
-  std::ifstream ifs("Dnlang/sample/test01.dn");
+  //std::ifstream ifs("Dnlang/sample/test01.dn");
+  std::ifstream ifs("Dnlang/sample/enemy.dn");
   if(ifs.fail()) {
     std::cerr << "Failed to open script file" << std::endl;
     return -1;
