@@ -133,7 +133,7 @@ bool DnLexer::isChar() {
 }
 
 bool DnLexer::isSym() {
-  return c == '_' || c == '-' || c == '@' || c == '\\' || c == '.';
+  return c == '_' || c == '@' || c == '\\' || c == '.' || c == '/';
 }
 
 bool DnLexer::isFloat() {

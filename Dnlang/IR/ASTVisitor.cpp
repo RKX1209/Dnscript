@@ -26,7 +26,7 @@ void ASTVisitor::downup(AST *root) {
 }
 
 void ASTVisitor::enter(AST *t) {
-  //std::cout<<"[ENTER]"<<t->token<<std::endl;
+  std::cout<<"[ENTER]"<<t->token<<std::endl;
   if(t->getNodeType() == -1) {
     /* Root */
     enterRoot(t);
@@ -82,7 +82,7 @@ void ASTVisitor::enter(AST *t) {
 }
 
 void ASTVisitor::exit(AST *t) {
-  //std::cout<<"[EXIT]"<<t->token<<std::endl;
+  std::cout<<"[EXIT]"<<t->token<<std::endl;
   if(t->getNodeType() == -1) {
     /* Root */
     exitRoot(t);
@@ -280,6 +280,10 @@ void Semantics::exitAssign(AST *assign) {
   assign->evalType = assign->children[0]->evalType;
 }
 
+CodeGen::CodeGen(AST *root) : ASTVisitor(root), reg_index(1), label_index(0) {
+  r0 = new Register("r0");
+}
+
 void CodeGen::exitRoot(AST *root) {
   joinCodes(root);
 }
@@ -315,7 +319,7 @@ void CodeGen::exitDecl(AST *decl) {
   // }
   {
     /* 3. left = right */
-    decl->code += left->getRegId() + "=" + right->getRegId() + "\n";
+    decl->code += left->getRegId() + " = " + right->getRegId() + "\n";
   }
 }
 void CodeGen::exitReturn(AST *ret) {
@@ -350,8 +354,10 @@ void CodeGen::exitCall(AST *call) {
     AST *arg = call->children[i];
     call->code += "param " + arg->getRegId() + "\n";
   }
+  call->reg = genReg();
   std::stringstream ss;
   ss << "call " + f_name + " " << call->children.size() - 1 << "\n";
+  ss << call->getRegId() << " = " << getRetReg()->getId() << "\n";  
   call->code += ss.str();
 }
 
@@ -411,9 +417,9 @@ void CodeGen::exitAssign(AST *assign) {
 }
 
 void CodeGen::enterWhile(AST *loop) {
-  AST *c_s = loop->children[0];
+  //AST *c_s = loop->children[0];
   loop->_begin = genLabel();
-  genTfLabel(c_s);
+  genTfLabel(loop);
 }
 
 void CodeGen::exitWhile(AST *loop) {
@@ -428,26 +434,39 @@ void CodeGen::exitWhile(AST *loop) {
 }
 
 void CodeGen::enterIf(AST *cond) {
-  AST *c_s = cond->children[0];
-  genTfLabel(c_s);
+  //AST *c_s = cond->children[0];
+  genTfLabel(cond);
 }
 
 void CodeGen::exitIf(AST *cond) {
   AST *c_s = cond->children[0];
   AST *t_s = cond->children[1];
-  AST *f_s = cond->children[2];
   AST *next = cond->parent->children[cond->child_idx + 1];
   Label *n_label = genLabel();
-  t_s->next = f_s->next = n_label;
-  cond->code = c_s->code +
-               c_s->_true->getId() + ":\n" + t_s->code + "\n" +
-               "goto " + n_label->getId() + "\n" +
-               c_s->_false->getId() + ":\n" + "\n" +
-               n_label->getId() + ":\n";
+  if (cond->children.size() == 3) {
+    /* if () {...} else() {...} */
+    AST *f_s = cond->children[2];
+    t_s->next = f_s->next = n_label;
+    cond->code = c_s->code +
+                 c_s->_true->getId() + ":\n" + t_s->code + "\n" +
+                 "goto " + n_label->getId() + "\n" +
+                 c_s->_false->getId() + ":\n" + "\n" +
+                 n_label->getId() + ":\n";
+  } else if (cond->children.size() == 2) {
+    /* if () {...} */
+    t_s->next = n_label;
+    cond->code = c_s->code +
+                 c_s->_true->getId() + ":\n" + t_s->code + "\n" +
+                 "goto " + n_label->getId() + "\n" +
+                 c_s->_false->getId() + ":\n" + "\n" +
+                 n_label->getId() + ":\n";
+  }
 }
 
 void CodeGen::enterOror(AST *oror) {
   //genTfLabel(oror);
+  oror->_true = oror->parent->_true;
+  oror->_false = oror->parent->_false;
 }
 
 void CodeGen::exitOror(AST *oror) {
@@ -463,6 +482,8 @@ void CodeGen::exitOror(AST *oror) {
 
 void CodeGen::enterAndand(AST *andand) {
   //genTfLabel(andand);
+  andand->_true = andand->parent->_true;
+  andand->_false = andand->parent->_false;
 }
 
 void CodeGen::exitAndand(AST *andand) {
@@ -479,6 +500,9 @@ void CodeGen::exitAndand(AST *andand) {
 
 void CodeGen::enterNot(AST *_not) {
   //genTfLabel(_not);
+  _not->_true = _not->parent->_true;
+  _not->_false = _not->parent->_false;
+
 }
 
 void CodeGen::exitNot(AST *_not) {
@@ -495,6 +519,8 @@ void CodeGen::enterRel(AST *rel) {
   // if (rel->parent->getNodeType() != DnLexer::WHILE && rel->parent->getNodeType() != DnLexer::IF) {
   //   genTfLabel(rel);
   // }
+  rel->_true = rel->parent->_true;
+  rel->_false = rel->parent->_false;
 }
 
 void CodeGen::exitRel(AST *rel) {

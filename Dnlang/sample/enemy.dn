@@ -1,16 +1,18 @@
-function @Initialize {
-	let count=0;
-	let cx=GetCenterX();
-	let imgEnemy="script/img/Enemy.png";
-	let imgAngle=0;
-	let shotAngle=0;
+let count=0;
+let cx=GetCenterX();
+let imgEnemy = "script/img/Enemy.png";
+let imgAngle=0;
+let shotAngle=0;
+
+function @Initialize() {
 	LoadGraphic(imgEnemy);
 	SetLife(1500);
 	SetGraphicRect(1,1,32,32);
 	SetMovePosition02(cx+0,60,60);
+	return;
 }
 
-function @MainLoop {
+function @MainLoop() {
 	if (count >= 30) {
 		if (count % 720 == 0 && count < 4000) {
 			SetMovePosition02(cx-50,100,20);
@@ -21,18 +23,19 @@ function @MainLoop {
 		if(count % 10 == 0){
 			let angle = 0;
 			while(angle < 360) {
-				CreateShot01(GetX() + GetW() / 2, GetY() + GetH() / 2,10,angle,RED,1);
+				CreateShot01(GetX() + GetW() / 2, GetY() + GetH() / 2,10,angle,0,1);
 				angle += 20;
 			}
 		}
 	}
 	++count;
+	return;
 }
 
-function @Finalize {
+function @Finalize() {
 
 }
 
-function @DrawLoop {
+function @DrawLoop() {
 	DrawGraphic(GetX(), GetY());
 }

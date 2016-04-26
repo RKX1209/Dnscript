@@ -107,10 +107,12 @@ public:
 
 class CodeGen : public ASTVisitor {
 public:
+  Register *r0;
   int reg_index;
   int label_index;
-  CodeGen(AST *root) : ASTVisitor(root), reg_index(0), label_index(0) {}
-  Register* genReg();
+  CodeGen(AST *root);
+  Register *genReg();
+  Register *getRetReg() { return r0; };
   Label *genLabel();
   void exitRoot(AST *root);
   void exitBlock(AST *block);

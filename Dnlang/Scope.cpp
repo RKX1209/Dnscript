@@ -32,6 +32,7 @@ MethodSymbol *GlobalScope::apis[GlobalScope::api_num] = {
   DEF_API("GetPlayerX", Type::FLOAT), DEF_API("GetPlayerY", Type::FLOAT),
   DEF_API("GetSpeedX", Type::FLOAT), DEF_API("GetSpeedY", Type::FLOAT),
   DEF_API("GetX", Type::FLOAT), DEF_API("GetY", Type::FLOAT),
+  DEF_API("GetW", Type::FLOAT), DEF_API("GetH", Type::FLOAT),  
   DEF_API("GetCenterX", Type::FLOAT), DEF_API("GetCenterY", Type::FLOAT),
   DEF_API("CreatePlayerShot01", Type::VOID), DEF_API("CreateShot01", Type::VOID),
   DEF_API("CutIn", Type::VOID), DEF_API("SetMovePosition02", Type::VOID),
