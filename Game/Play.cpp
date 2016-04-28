@@ -1,4 +1,9 @@
 #include <string>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <list>
 #include "Api.hpp"
 #include "Object.hpp"
 #include "Keyboard.hpp"
@@ -7,7 +12,6 @@
 #include "Game.hpp"
 #include "Window.hpp"
 #include "Player.hpp"
-
 #include "test/player_test.hpp"
 #include "test/enemy_test.hpp"
 SDL_Rect Play::win_rect;
@@ -31,8 +35,17 @@ Play::Play(){
   p_test = new player_test(player);
   p_test->Initialize();
   enemies.push_back(new Enemy());
+
+  /* Compile the script code and execute @Initialize function */
+  interp = new Dnlang::Interprter(enemies[0], "Dnlang/sample/enemy.dn");
+  interp->compile();
+  interp->Initialize();
+
   e_test = new enemy_test(enemies.front());
-  e_test->Initialize();
+  //e_test->Initialize();
+
+
+
 }
 
 Play::~Play(){
@@ -45,6 +58,7 @@ Play::~Play(){
     delete e;
     enemies.pop_front();
   }
+  delete interp;
 }
 
 void Play::update(Game* parent){
@@ -53,7 +67,8 @@ void Play::update(Game* parent){
   for(int i = 0; i < enemies.size(); i++){
     enemies[i]->update();
   }
-  e_test->MainLoop();
+  //e_test->MainLoop();
+  interp->MainLoop();
 }
 void Play::draw(){
   api->RenderClear();
@@ -63,7 +78,8 @@ void Play::draw(){
   for(int i = 0; i < enemies.size(); i++){
     enemies[i]->draw();
   }
-  e_test->DrawLoop();
+  //e_test->DrawLoop();
+  interp->DrawLoop();
   api->RenderPresent();
 }
 

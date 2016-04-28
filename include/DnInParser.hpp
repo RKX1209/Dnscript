@@ -25,6 +25,7 @@ public:
     if (labels.find(lab) == labels.end()) return -1;
     return labels[lab];
   }
+  int getPC() { return pc; }
   void setRetVal(double val);
   double getVal(Token token);
   void setVal(Token token, double val);

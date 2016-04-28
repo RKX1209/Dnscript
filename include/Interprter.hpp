@@ -36,6 +36,10 @@ public:
   void load_script();
   void compile();
   void preprocess();
+  void execLabel(std::string lab);
+  void Initialize();
+  void MainLoop();
+  void DrawLoop();
 };
 
 }

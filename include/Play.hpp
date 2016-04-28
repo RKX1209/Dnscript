@@ -2,6 +2,14 @@
 #define __PLAY_HPP__
 #include <SDL.h>
 #include <deque>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <list>
+
+#include "Interprter.hpp"
 
 class Object;
 class Game;
@@ -21,6 +29,7 @@ private:
   std::deque<Enemy*> enemies;
   player_test* p_test;
   enemy_test* e_test;
+  Dnlang::Interprter *interp;
 public:
   static SDL_Rect win_rect;
   Object* obj_back;

@@ -33,9 +33,9 @@ function @MainLoop() {
 }
 
 function @Finalize() {
-
 }
 
 function @DrawLoop() {
 	DrawGraphic(GetX(), GetY());
+	return;
 }

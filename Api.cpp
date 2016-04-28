@@ -2,11 +2,16 @@
 #include <string>
 #include <cstdio>
 #include <unistd.h>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <list>
 #include <SDL2_rotozoom.h>
 #include "Object.hpp"
 #include "Api.hpp"
 #include "Dnscript.hpp"
 #include "Window.hpp"
+#include "Interprter.hpp"
 #include "Play.hpp"
 
 
@@ -156,4 +161,139 @@ void Api::RenderClear(){
 }
 void Api::RenderPresent(){
   SDL_RenderPresent(Window::renderer);
+}
+
+
+/* ### ABI list ### */
+/* Graphics */
+void Api::_LoadGraphic(Object* target,double filename){
+  std::string *filename_s = reinterpret_cast<std::string *>((int)(filename));
+  LoadGraphic(target, *filename_s);
+}
+
+void Api::_SetTexture(Object* target,double filename){
+  std::string *filename_s = reinterpret_cast<std::string *>((int)(filename));
+  SetTexture(target, *filename_s);
+}
+
+void Api::_SetGraphicRect(Object* target,double sx,double sy,double dx,double dy){
+  Uint32 sxi = (int)(sx);
+  Uint32 syi = (int)(sy);
+  Uint32 dxi = (int)(dx);
+  Uint32 dyi = (int)(dy);
+  SetGraphicRect(target, sxi, syi, dxi, dyi);
+}
+
+void Api::_SetGraphicAngle(Object* target,double angle){
+  Uint32 anglei = (Uint32)(angle);
+  SetGraphicAngle(target, anglei);
+}
+
+void Api::_DrawGraphic(Object* target,double x,double y){
+  Uint32 xi = (int)(x);
+  Uint32 yi = (int)(y);
+  DrawGraphic(target,xi,yi);
+}
+
+/* Status*/
+void Api::_SetSpeed(Object* target,double speed){
+  int speedi = (int)(speed);
+  SetSpeed(target, speedi);
+}
+void Api::_SetLife(Object* target,double life){
+  int lifei = (int)(life);
+  SetLife(target, lifei);
+}
+void Api::_SetX(Object* target,double x){
+  double xi = (int)(x);
+  SetX(target, xi);
+}
+void Api::_SetY(Object* target,double y){
+  double yi = (int)(y);
+  SetY(target, yi);
+}
+int Api::_GetPlayerX(Object* target){
+  GetPlayerX(target);
+}
+int Api::_GetPlayerY(Object* target){
+  GetPlayerY(target);
+}
+int Api::_GetSpeedX(Object* target){
+  GetSpeedX(target);
+}
+int Api::_GetSpeedY(Object* target){
+  GetSpeedY(target);
+}
+int Api::_GetX(Object* target){
+  return GetX(target);
+}
+int Api::_GetY(Object* target){
+  return GetY(target);
+}
+int Api::_GetMX(Object* target){
+  return GetMX(target);
+}
+int Api::_GetMY(Object* target){
+  return GetMY(target);
+}
+int Api::_GetW(Object* target){
+  return GetW(target);
+}
+int Api::_GetH(Object* target){
+  return GetH(target);
+}
+int Api::_GetCenterX(){
+  return GetCenterX();
+}
+int Api::_GetCenterY(){
+  return GetCenterY();
+}
+
+/* Danmaku */
+void Api::_CreatePlayerShot01(Object* target,double x,double y,
+                            double speed,double angle,double damage,
+                            double pene,double id){
+  int xi = (int)x;
+  int yi = (int)y;
+  int penei = (int)pene;
+  int idi = (int)id;
+  CreatePlayerShot01(target,xi,yi,speed,angle,damage,penei,idi);
+}
+void Api::_CreateShot01(Object* target,double x,double y,
+                      double speed,double angle,double color,double delay){
+  int xi = (int)x;
+  int yi = (int)y;
+  Bullet::Color colorc= (Bullet::Color)((int)color);
+  int delayi = (int)delay;
+  CreateShot01(target,xi,yi,speed,angle,colorc, delayi);
+}
+
+/* SpellCard */
+void Api::_CutIn(Object* target,double label,double img,double x1,double y1,double x2,double y2){
+  std::string *labelp = reinterpret_cast<std::string *>((int)(label));
+  std::string *imgp = reinterpret_cast<std::string *>((int)(img));
+  int x1i = (int)x1;
+  int y1i = (int)y1;
+  int x2i = (int)x2;
+  int y2i = (int)y2;
+
+  CutIn(target,*labelp,*imgp,x1i,y1i,x2i,y2i);
+}
+/* Action */
+void Api::_SetMovePosition02(Object* target,double x,double y,double frame){
+  int xi = (int)x;
+  int yi = (int)y;
+  int framei = (int)frame;
+  SetMovePosition02(target,xi,yi,framei);
+}
+
+/* Keyboard */
+Api::KeyState Api::_GetKeyState(double key){
+  SDL_Keycode keys = (SDL_Keycode)key;
+  GetKeyState(keys);
+}
+
+/* Other */
+std::string Api::_GetCurrentScriptDirectory(){
+  return GetCurrentScriptDirectory();
 }

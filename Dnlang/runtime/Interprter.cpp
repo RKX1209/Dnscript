@@ -40,6 +40,7 @@ void Interprter::load_script() {
 
 void Interprter::compile() {
   try{
+    std::cout<<"compiling..."<<std::endl;
     parser->TranslationUnit();
     ast = parser->get_AST();
     std::cout << ast->toStringTree(0) << std::endl;
@@ -54,9 +55,44 @@ void Interprter::compile() {
     BOOST_FOREACH(std::string s, this->code) {
       std::cout << s << std::endl;
     }
+    preprocess();
   }catch(std::string s) {
     std::cout<<s<<std::endl;
     abort();
+  }
+}
+
+void Interprter::Initialize() {
+  this->execLabel("@Initialize:");
+}
+void Interprter::MainLoop() {
+  this->execLabel("@MainLoop:");
+}
+void Interprter::DrawLoop() {
+  this->execLabel("@DrawLoop:");
+}
+
+void Interprter::execLabel(std::string lab) {
+  int lab_pc = inparser->getLabel(lab);
+  int pc = lab_pc;
+  std::string oneline = this->code[pc];
+  while (oneline.find("ret") != std::string::npos) {
+    /* XXX: User defined function can't adjsut this structure.
+            I'll implment it in the near future.... */
+    if (oneline == "") { pc++; continue; }
+    inparser->execline(oneline, pc); //execute one line
+    pc = inparser->getPC(); // go to next instruction
+    oneline = this->code[pc];
+  }
+}
+
+void Interprter::preprocess() {
+  int i = 0;
+  BOOST_FOREACH(std::string s, this->code) {
+    if (s.find(":") != std::string::npos) {
+      inparser->defLabel(s, i);
+    }
+    i++;
   }
 }
 

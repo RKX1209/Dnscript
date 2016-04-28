@@ -149,7 +149,7 @@ Token DnLexer::FloatConst() {
 
 Token DnLexer::String() {
   std::string buf;
-  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter() || isSym());
+  do { buf.append(1, c); consume(); } while(isDecimal() || isLetter() || isSym() || c == '\"' || c == '\"');
   return Token(STRING, buf);
 }
 
