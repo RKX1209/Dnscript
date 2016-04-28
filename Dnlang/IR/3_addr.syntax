@@ -1,16 +1,26 @@
 ## 3_address code
 
+## LL(1) pre-read 1 words from head to determine a statement.
+stat		head
+<assign>	<addr>
+<jump>		'goto'
+<cond_jump>	'if'
+<param>		'param'
+<call_func>	'call'
+<ret>		'ret'
+
+<3_addr>    ::=   <assign> | <jump> | <cond_jump> | <call_func>
+
+# assign = l op r
 <assign>    ::=   <l-val> '=' <r-val>
 <l-val>     ::=   <addr>
-            |     '*' <addr>
 <r-val>     ::=   <operation>
             
 # x = y op z, x = op y, x = y
 <operation> ::=   <addr> <arth> <addr>
-            |     <unary> <addr>
+	    |	  <addr> <arth> <decimal>
             |     <addr>
-<arth>      ::=   '+' | '-' | '*'
-<unary>     ::=   '-' | '~' | '*' | '&'
+<arth>      ::=   '+' | '-' | '*' | '/' | '%'
 
 # goto L
 <jump>      ::=   'goto' <label>
@@ -23,11 +33,8 @@
 # param x_1
 # param x_2
 # call  func, 2
-<call_func> ::=   <params> <call>
-<params>    ::=   <param> <params>
 <param>     ::=   'param' <addr>
-<call>      ::=   <addr> '=' 'call' <label> <decimal>
-            |     'call' <label> <decimal>
+<call_func> ::=	  'call' <label> <decimal>
 
-<addr>      ::=   <symbol>
-            |     <symbol> '[' <decimal> ']'
+<ret>	    ::=	  'ret'
+	    |	  'ret' <addr>

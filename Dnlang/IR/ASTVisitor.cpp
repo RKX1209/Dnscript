@@ -299,6 +299,7 @@ void CodeGen::exitId(AST *id) {
 }
 
 void CodeGen::exitMethod(AST *method) {
+  method->code = method->children[0]->getNodeText() + ":\n";
   joinCodes(method);
 }
 
@@ -357,7 +358,7 @@ void CodeGen::exitCall(AST *call) {
   call->reg = genReg();
   std::stringstream ss;
   ss << "call " + f_name + " " << call->children.size() - 1 << "\n";
-  ss << call->getRegId() << " = " << getRetReg()->getId() << "\n";  
+  ss << call->getRegId() << " = " << getRetReg()->getId() << "\n";
   call->code += ss.str();
 }
 

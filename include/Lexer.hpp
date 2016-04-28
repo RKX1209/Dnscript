@@ -14,6 +14,14 @@ public:
   void match(char x);
   virtual std::string get_token_name(int x) {}
   virtual Token nextToken() {}
+  virtual bool isDecimal();
+  virtual bool isLetter();
+  virtual bool isChar();
+  virtual bool isFloat();
+  virtual bool isString();
+  virtual bool isSym();
+  virtual bool isId();
+  virtual void skipSpaces();
 };
 
 #endif

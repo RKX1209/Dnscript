@@ -8,7 +8,7 @@ public:
   std::vector<int> markers;
   std::vector<Token> lookahead;
   std::map<std::string, std::map<int, int> > memos;
-  static const int FAILED;;
+  static const int FAILED;
   int p;
   Parser(std::string script) : p(0) {}
   Token LT(int i);

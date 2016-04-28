@@ -116,38 +116,6 @@ Token DnLexer::nextToken() {
   return Token(EOF_TYPE, "<EOF>");
 }
 
-void DnLexer::skipSpaces() {
-    while(c == ' ' || c == '\t' || c == '\n' || c == '\r') consume();
-}
-
-bool DnLexer::isLetter() {
-  return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z');
-}
-
-bool DnLexer::isDecimal() {
-  return '0' <= c && c <= '9';
-}
-
-bool DnLexer::isChar() {
-  return c == '\'' && (p + 2) < input.size() && input[p + 2] == '\'';
-}
-
-bool DnLexer::isSym() {
-  return c == '_' || c == '@' || c == '\\' || c == '.' || c == '/';
-}
-
-bool DnLexer::isFloat() {
-  return input.find(".") != std::string::npos;
-}
-
-bool DnLexer::isString() {
-  return c == '\"' && input.find("\"", p + 1) != std::string::npos;
-}
-
-bool DnLexer::isId() {
-  return isLetter() || isSym();
-}
-
 /* TODO: Is it reserved word? It's judged by using binary search. */
 int DnLexer::isReserved(std::string str) {
   int rsize = sizeof(reserved) / sizeof(std::string *);
@@ -181,9 +149,7 @@ Token DnLexer::FloatConst() {
 
 Token DnLexer::String() {
   std::string buf;
-  consume();
   do { buf.append(1, c); consume(); } while(isDecimal() || isLetter() || isSym());
-  consume();
   return Token(STRING, buf);
 }
 

@@ -1,13 +1,18 @@
 DEBUG		=  1
+DNLANG 	=  Dnlang
+DNLANGIR=  $(DNLANG)/IR
+DNLANGRT=  $(DNLANG)/runtime
 OBJS		=		Main.o Dnscript.o Title.o Select.o Game.o \
 						Event.o Keyboard.o Api.o Frame.o Object.o\
 						Game/Load.o Game/Clear.o Game/Play.o Game/Menu.o Game/Player.o\
 						Game/Bullet.o Game/Enemy.o\
 						test/player_test.o test/enemy_test.o\
 
-DN_OBJS =	  Dnlang/Lexer.o Dnlang/DnLexer.o Dnlang/Token.o Dnlang/Parser.o \
-						Dnlang/DnParser.o Dnlang/Scope.o Dnlang/Symbol.o Dnlang/Symbols.o \
-						Dnlang/IR/AST.o Dnlang/IR/ASTVisitor.o \
+DN_OBJS =	  $(DNLANG)/Lexer.o $(DNLANG)/DnLexer.o $(DNLANG)/Token.o $(DNLANG)/Parser.o \
+						$(DNLANG)/DnParser.o $(DNLANG)/Scope.o $(DNLANG)/Symbol.o $(DNLANG)/Symbols.o \
+						$(DNLANGIR)/AST.o $(DNLANGIR)/ASTVisitor.o \
+
+IN_OBJS	=		$(DNLANGRT)/DnInLexer.o $(DNLANGRT)/DnInParser.o $(DNLANGRT)/Interprter.o \
 
 CURPATH = 	$(shell pwd)
 INCLUDE =		$(CURPATH)/include
@@ -30,12 +35,11 @@ CHKSEC	=		$(shell which checksec.sh)
 
 all:
 	$(MAKE) $(DNSCRIPT)
+
+test:
 	$(MAKE) $(DNTEST)
 
-Dntest:
-	$(MAKE) $(DNTEST)
-
-$(DNSCRIPT) : $(OBJS) $(DN_OBJS)
+$(DNSCRIPT) : $(OBJS) $(DN_OBJS) $(IN_OBJS)
 	$(CXX) $(CXXFLAG) $@ $^ $(LDFLAG)
 
 $(DNTEST) : test/dnlang_test01.o $(DN_OBJS)

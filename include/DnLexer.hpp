@@ -32,20 +32,12 @@ public:
   DnLexer(std::string input) : Lexer(input) { }
   virtual std::string get_token_name(int x) { return token_names[x]; }
   virtual Token nextToken();
-  bool isDecimal();
-  bool isLetter();
-  bool isChar();
-  bool isFloat();
-  bool isString();
-  bool isSym();
-  bool isId();
   int isReserved(std::string str);
-  void skipSpaces();
   Token IntConst();
   Token CharConst();
   Token FloatConst();
   Token String();
-  Token Id();
+  Token Id();  
 };
 
 }
