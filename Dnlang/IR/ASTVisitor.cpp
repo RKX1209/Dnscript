@@ -285,6 +285,7 @@ CodeGen::CodeGen(AST *root) : ASTVisitor(root), reg_index(1), label_index(0) {
 }
 
 void CodeGen::exitRoot(AST *root) {
+  root->code = "_Init:\n";
   joinCodes(root);
 }
 

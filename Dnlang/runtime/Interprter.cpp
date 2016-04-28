@@ -71,13 +71,16 @@ void Interprter::MainLoop() {
 void Interprter::DrawLoop() {
   this->execLabel("@DrawLoop:");
 }
+void Interprter::_Init() {
+  this->execLabel("_Init:");
+}
 
 void Interprter::execLabel(std::string lab) {
   int lab_pc = inparser->getLabel(lab);
   int pc = lab_pc + 1;
   std::string oneline = this->code[pc];
-  std::cout<<pc<<std::endl;  
-  while (oneline.find("ret") == std::string::npos) {
+  std::cout<<pc<<std::endl;
+  while (oneline.find("ret") == std::string::npos && oneline.find("@") == std::string::npos) {
     /* XXX: User defined function can't adjsut this structure.
             I'll implment it in the near future.... */
     if (oneline == "") { pc++; continue; }

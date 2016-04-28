@@ -12,6 +12,9 @@ const int Parser::FAILED = -1;
 
 Token Parser::LT(int i) {
   sync(i);
+  //if (p + i - 1 >= lookahead.size()) return 0;
+  //std::cout<<"lookahead:\n";
+  //for (int i = 0; i < lookahead.size(); i++) std::cout<<lookahead[i]<<std::endl;
   return lookahead[p + i - 1];
 }
 
@@ -40,12 +43,14 @@ void Parser::sync(int i) {
 
 void Parser::fill(int n) {
   //std::cout<<"fill"<<n<<std::endl;
-  for(int i = 0; i < n; i++) { lookahead.push_back(input->nextToken()); }
+  for(int i = 0; i < n; i++) { Token ne = input->nextToken(); lookahead.push_back(ne); }
 }
 
 void Parser::consume() {
   p++;
   if(p == lookahead.size() && !isSpeculating() ) {
+    //std::cout<<"fin and clear\n";
+    finished = true;
     p = 0;
     lookahead.clear();
   }

@@ -39,6 +39,8 @@ public:
   void CallFunc();
   void Param();
   void Ret();
+
+  void TestLex();
 };
 
 }

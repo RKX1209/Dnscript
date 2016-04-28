@@ -10,7 +10,18 @@ public:
   std::map<std::string, std::map<int, int> > memos;
   static const int FAILED;
   int p;
-  Parser(std::string script) : p(0) {}
+  bool finished;
+  Parser(std::string script) : p(0), finished(false) {}
+  ~Parser() {
+    Clear();
+  }
+  void Clear() {
+    p = 0;
+    finished = false;
+    lookahead.clear();
+    markers.clear();
+    memos.clear();
+  }
   Token LT(int i);
   int LA(int i);
   void match(int x);
@@ -24,6 +35,7 @@ public:
   bool alreadyParsedRule(std::string rule);
   void memorize(std::string rule, int startTokenIndex, bool failed);
   int index();
+  bool isFin() { return finished; }
 };
 
 #endif

@@ -39,6 +39,7 @@ Play::Play(){
   /* Compile the script code and execute @Initialize function */
   interp = new Dnlang::Interprter(enemies[0], "Dnlang/sample/enemy.dn");
   interp->compile();
+  interp->_Init();
   interp->Initialize();
 
   e_test = new enemy_test(enemies.front());

@@ -14,7 +14,7 @@ Lexer::Lexer(std::string _input) : input(_input) {
 
 void Lexer::consume() {
   p++;
-  if(p >= input.size()) c = EOF;
+  if(p >= input.size()) c = LEX_EOF;
   else c = input[p];
 }
 

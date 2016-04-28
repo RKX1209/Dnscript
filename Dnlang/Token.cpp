@@ -10,7 +10,8 @@ std::ostream& operator<<(std::ostream& os, const Token& tk) {
     os << "root";
   }
   else {
-    os << Dnlang::DnLexer::token_names[tk.type] << "," << tk.text;
+    //os << Dnlang::DnLexer::token_names[tk.type] << "," << tk.text;
+    os << tk.type << "," << tk.text;
   }
 }
 std::string Token::toString() {

@@ -18,6 +18,7 @@
 namespace Dnlang {
 
 void DnInParser::Addr3() {
+  std::cout<<"Next:"<<LT(1)<<std::endl;
   if (LA(1) == DnInLexer::ADDR) {
     Assign();
   } else if (LA(1) == DnInLexer::GOTO) {
@@ -38,12 +39,14 @@ void DnInParser::Addr3() {
 }
 
 void DnInParser::Assign() {
+  std::cout<<"[ENTER] Assign\n";
   Token left = LT(1);
   consume();
   if ( LA(1) == DnInLexer::EQUAL ) {
     consume();
     int op_res = (int)RVal();
     setVal(left, op_res); //define register value
+    pc++;
   } else {
     std::stringstream error;
     error << "Error: " << LT(1) << LT(2);
@@ -56,31 +59,34 @@ double DnInParser::RVal() {
 }
 
 double DnInParser::Operation() {
+  std::cout<<"[ENTER] Op\n";
   int op_res = 0;
   Token addr = LT(1);
   double res = getVal(addr);
   consume();
-  if ( LA(1) == DnInLexer::PLUS ) {
-    consume();
-    res += getVal(LT(1));
-    consume();
-  } else if ( LA(1) == DnInLexer::MINUS ) {
-    consume();
-    res -= getVal(LT(1));
-    consume();
-  } else if ( LA(1) == DnInLexer::MUL ) {
-    consume();
-    res *= getVal(LT(1));
-    consume();
-  } else if ( LA(1) == DnInLexer::DIV ) {
-    consume();
-    res /= getVal(LT(1));
-    consume();
-  } else if ( LA(1) == DnInLexer::MOD ) {
-    consume();
-    int mod_res = (int)res % (int)getVal(LT(1));
-    res = mod_res;
-    consume();
+  if (!isFin()) {
+    if ( LA(1) == DnInLexer::PLUS ) {
+      consume();
+      res += getVal(LT(1));
+      consume();
+    } else if ( LA(1) == DnInLexer::MINUS ) {
+      consume();
+      res -= getVal(LT(1));
+      consume();
+    } else if ( LA(1) == DnInLexer::MUL ) {
+      consume();
+      res *= getVal(LT(1));
+      consume();
+    } else if ( LA(1) == DnInLexer::DIV ) {
+      consume();
+      res /= getVal(LT(1));
+      consume();
+    } else if ( LA(1) == DnInLexer::MOD ) {
+      consume();
+      int mod_res = (int)res % (int)getVal(LT(1));
+      res = mod_res;
+      consume();
+    }
   }
   return res;
 }
@@ -102,6 +108,7 @@ void DnInParser::CondJump() {
   }
   consume(); // "goto"
   consume(); //"label"
+  pc++;
 }
 
 bool DnInParser::Cond() {
@@ -148,6 +155,7 @@ void DnInParser::Param() {
   double val = getVal(addr);
   stack.push_back(val);
   consume();
+  pc++;
 }
 
 void DnInParser::Ret() {
@@ -157,6 +165,7 @@ void DnInParser::Ret() {
     setRetVal(val);
     consume();
   }
+  pc++;
 }
 
 void DnInParser::CallFunc() {
@@ -210,6 +219,7 @@ void DnInParser::CallFunc() {
       std::string *namep = new std::string(api->_GetCurrentScriptDirectory());
       setRetVal(reinterpret_cast<unsigned long>(namep->c_str()));
     }
+    pc++;
   } else {
     /* TODO: Implment calling normal function */
     pc = fn_line;
@@ -219,9 +229,14 @@ void DnInParser::CallFunc() {
 void DnInParser::execline(std::string oneline, int _pc) {
   /* Execute only one line of code */
   lexer = new DnInLexer(oneline);
+  input = lexer;
+  // std::cout<<"<lexer>\n";
+  // while (lexer->c != -1) std::cout<<"word:"<<lexer->nextToken();
+  // std::cout<<"</lexer>\n";
   pc = _pc;
   this->Addr3();
   delete lexer;
+  Clear();
 }
 
 int DnInParser::defString(std::string str) {
@@ -252,4 +267,7 @@ void DnInParser::setRetVal(double val) {
   syms["r0"] = val;
 }
 
+void DnInParser::TestLex() {
+
+}
 }

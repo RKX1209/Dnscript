@@ -77,6 +77,7 @@ Token DnInLexer::nextToken() {
         break;
       }
   }
+  return Token(EOF_TYPE, "<EOF>");
 }
 /* TODO: Is it reserved word? It's judged by using binary search. */
 int DnInLexer::isReserved(std::string str) {
