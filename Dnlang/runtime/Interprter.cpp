@@ -74,12 +74,14 @@ void Interprter::DrawLoop() {
 
 void Interprter::execLabel(std::string lab) {
   int lab_pc = inparser->getLabel(lab);
-  int pc = lab_pc;
+  int pc = lab_pc + 1;
   std::string oneline = this->code[pc];
-  while (oneline.find("ret") != std::string::npos) {
+  std::cout<<pc<<std::endl;  
+  while (oneline.find("ret") == std::string::npos) {
     /* XXX: User defined function can't adjsut this structure.
             I'll implment it in the near future.... */
     if (oneline == "") { pc++; continue; }
+    std::cout<<"execute: "<<oneline<<std::endl;
     inparser->execline(oneline, pc); //execute one line
     pc = inparser->getPC(); // go to next instruction
     oneline = this->code[pc];

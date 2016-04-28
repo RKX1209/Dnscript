@@ -349,7 +349,7 @@ void CodeGen::exitCall(AST *call) {
   std::string f_name = call->children[0]->getNodeText();
   for(int i = 1; i < call->children.size(); i++) {
     AST *arg = call->children[i];
-    call->code += arg->code + "\n";
+    call->code += arg->code;
   }
   for(int i = 1; i < call->children.size(); i++) {
     AST *arg = call->children[i];
@@ -427,8 +427,8 @@ void CodeGen::exitWhile(AST *loop) {
   AST *c_s = loop->children[0];
   AST *t_s = loop->children[1];
   AST *next = loop->parent->children[loop->child_idx + 1];
-  loop->code = loop->_begin->getId() + ":\n" + c_s->code + "\n" +
-               c_s->_true->getId() + ":\n" + t_s->code + "\n" +
+  loop->code = loop->_begin->getId() + ":\n" + c_s->code +
+               c_s->_true->getId() + ":\n" + t_s->code +
                "goto " + loop->_begin->getId() + "\n" +
                c_s->_false->getId() + ":\n";
   //std::cout << "exitWhile\n" << loop->code <<std::endl;
@@ -449,17 +449,17 @@ void CodeGen::exitIf(AST *cond) {
     AST *f_s = cond->children[2];
     t_s->next = f_s->next = n_label;
     cond->code = c_s->code +
-                 c_s->_true->getId() + ":\n" + t_s->code + "\n" +
+                 c_s->_true->getId() + ":\n" + t_s->code +
                  "goto " + n_label->getId() + "\n" +
-                 c_s->_false->getId() + ":\n" + "\n" +
+                 c_s->_false->getId() + ":\n" +
                  n_label->getId() + ":\n";
   } else if (cond->children.size() == 2) {
     /* if () {...} */
     t_s->next = n_label;
     cond->code = c_s->code +
-                 c_s->_true->getId() + ":\n" + t_s->code + "\n" +
+                 c_s->_true->getId() + ":\n" + t_s->code +
                  "goto " + n_label->getId() + "\n" +
-                 c_s->_false->getId() + ":\n" + "\n" +
+                 c_s->_false->getId() + ":\n" +
                  n_label->getId() + ":\n";
   }
 }
@@ -476,9 +476,9 @@ void CodeGen::exitOror(AST *oror) {
   left->_true = genLabel();
   right->_true = oror->_true;
   right->_false = oror->_false;
-  oror->code = left->code + "\n" +
+  oror->code = left->code  +
                left->_false->getId() + ":\n" +
-               right->code + "\n";
+               right->code;
 }
 
 void CodeGen::enterAndand(AST *andand) {
@@ -494,9 +494,9 @@ void CodeGen::exitAndand(AST *andand) {
   left->_false = andand->_false;
   right->_true = andand->_true;
   right->_false = andand->_false;
-  andand->code = left->code + "\n" +
+  andand->code = left->code +
                  left->_true->getId() + ":\n" +
-                 right->code + "\n";
+                 right->code;
 }
 
 void CodeGen::enterNot(AST *_not) {
@@ -527,8 +527,8 @@ void CodeGen::enterRel(AST *rel) {
 void CodeGen::exitRel(AST *rel) {
   AST *left = rel->children[0];
   AST *right = rel->children[1];
-  rel->code = left->code + "\n" +
-              right->code + "\n" +
+  rel->code = left->code +
+              right->code +
               "if " + left->getRegId() + " " + rel->getNodeText() + " " + right->getRegId() + " " +
               "goto " + rel->_true->getId() + "\n" +
               "goto " + rel->_false->getId() + "\n";
