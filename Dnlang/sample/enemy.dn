@@ -15,10 +15,10 @@ function @Initialize() {
 
 function @MainLoop() {
 	if (count >= 30) {
-		if (count % 720 == 0 && count < 4000) {
+		if (count % 180 == 0 && count < 4000) {
 			SetMovePosition02(cx-50,100,20);
 		}
-		if(count % 720 == 360 && count < 4000){
+		if(count % 180 == 90 && count < 4000){
 			SetMovePosition02(cx+50,100,20);
 		}
 		if(count % 10 == 0){
