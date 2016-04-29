@@ -5,6 +5,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <typeinfo>
+#include <cstdio>
+#include <algorithm>
 #include "Object.hpp"
 #include "Api.hpp"
 #include "Token.hpp"
@@ -18,7 +20,7 @@
 namespace Dnlang {
 
 void DnInParser::Addr3() {
-  std::cout<<"Next:"<<LT(1)<<std::endl;
+  //std::cout<<"Next:"<<LT(1)<<std::endl;
   if (LA(1) == DnInLexer::ADDR) {
     Assign();
   } else if (LA(1) == DnInLexer::GOTO) {
@@ -39,7 +41,7 @@ void DnInParser::Addr3() {
 }
 
 void DnInParser::Assign() {
-  std::cout<<"[ENTER] Assign\n";
+  //std::cout<<"[ENTER] Assign\n";
   Token left = LT(1);
   consume();
   if ( LA(1) == DnInLexer::EQUAL ) {
@@ -59,14 +61,15 @@ double DnInParser::RVal() {
 }
 
 double DnInParser::Operation() {
-  std::cout<<"[ENTER] Op\n";
+  //std::cout<<"[ENTER] Op\n";
   int op_res = 0;
   Token addr = LT(1);
   double res = getVal(addr);
   consume();
-  if (!isFin()) {
+  //if (!isFin()) {
     if ( LA(1) == DnInLexer::PLUS ) {
       consume();
+      //std::cout<<"calc:"<<res<<"+"<<LT(1)<<LT(2)<<std::endl;
       res += getVal(LT(1));
       consume();
     } else if ( LA(1) == DnInLexer::MINUS ) {
@@ -87,7 +90,7 @@ double DnInParser::Operation() {
       res = mod_res;
       consume();
     }
-  }
+  //}
   return res;
 }
 
@@ -180,8 +183,12 @@ void DnInParser::CallFunc() {
     argv.push_back(stack[stack.size() - 1]);
     stack.pop_back();
   }
+  std::reverse(argv.begin(),argv.end());
   if(fn_line == -1) {
     std::string api_name = label.text;
+    std::cout<<"[API] "<<api_name<<"(";
+    for(int i = 0; i < argc; i++) std::cout<<argv[i]<<",";
+    std::cout<<")\n";
     if (api_name == "LoadGraphic") { api->_LoadGraphic(target, argv[0]); }
     else if (api_name == "DeleteGraphic"){}
     else if (api_name == "SetTexture") { api->_SetTexture(target, argv[0]); }
@@ -230,9 +237,6 @@ void DnInParser::execline(std::string oneline, int _pc) {
   /* Execute only one line of code */
   lexer = new DnInLexer(oneline);
   input = lexer;
-  // std::cout<<"<lexer>\n";
-  // while (lexer->c != -1) std::cout<<"word:"<<lexer->nextToken();
-  // std::cout<<"</lexer>\n";
   pc = _pc;
   this->Addr3();
   delete lexer;
@@ -241,6 +245,7 @@ void DnInParser::execline(std::string oneline, int _pc) {
 
 int DnInParser::defString(std::string str) {
   std::string *strp = new std::string(str);
+  printf("defval:%p\n",strp->c_str());
   int addr = reinterpret_cast<unsigned long>(strp->c_str());
   syms[str] = addr;
   revmap[addr] = str;
@@ -270,4 +275,13 @@ void DnInParser::setRetVal(double val) {
 void DnInParser::TestLex() {
 
 }
+
+void DnInParser::dump() {
+  std::map<std::string, double>::iterator it = syms.begin();
+  while (it != syms.end()) {
+    std::cout<<it->first<<":"<<it->second<<std::endl;
+    ++it;
+  }
+}
+
 }

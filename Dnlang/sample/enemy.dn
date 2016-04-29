@@ -1,6 +1,6 @@
 let count=0;
 let cx=GetCenterX();
-let imgEnemy = "script/img/Enemy.png";
+let imgEnemy = "img/Enemy.png";
 let imgAngle=0;
 let shotAngle=0;
 
@@ -8,6 +8,7 @@ function @Initialize() {
 	LoadGraphic(imgEnemy);
 	SetLife(1500);
 	SetGraphicRect(1,1,32,32);
+	SetTexture(imgEnemy);
 	SetMovePosition02(cx+0,60,60);
 	return;
 }

@@ -39,7 +39,7 @@ public:
   void CallFunc();
   void Param();
   void Ret();
-
+  void dump();
   void TestLex();
 };
 

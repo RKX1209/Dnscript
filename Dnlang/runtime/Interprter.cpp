@@ -13,7 +13,7 @@
 
 namespace Dnlang {
 
-Interprter::Interprter(Object *obj, std::string _path) : path(_path) {
+Interprter::Interprter(Object *obj, std::string _path) : target(obj), path(_path) {
   this->load_script();
   parser = new DnParser(script);
   inparser = new DnInParser(target);
@@ -63,31 +63,32 @@ void Interprter::compile() {
 }
 
 void Interprter::Initialize() {
-  this->execLabel("@Initialize:");
+  this->execLabel("@Initialize");
 }
 void Interprter::MainLoop() {
-  this->execLabel("@MainLoop:");
+  this->execLabel("@MainLoop");
 }
 void Interprter::DrawLoop() {
-  this->execLabel("@DrawLoop:");
+  this->execLabel("@DrawLoop");
 }
 void Interprter::_Init() {
-  this->execLabel("_Init:");
+  this->execLabel("_Init");
 }
 
 void Interprter::execLabel(std::string lab) {
+  //std::cout<<"Start "<<lab<<std::endl;
   int lab_pc = inparser->getLabel(lab);
   int pc = lab_pc + 1;
-  std::string oneline = this->code[pc];
-  std::cout<<pc<<std::endl;
+  std::string oneline;
   while (oneline.find("ret") == std::string::npos && oneline.find("@") == std::string::npos) {
     /* XXX: User defined function can't adjsut this structure.
             I'll implment it in the near future.... */
-    if (oneline == "") { pc++; continue; }
+    oneline = this->code[pc];
+    if (oneline == "" || oneline.find(":") != std::string::npos) { pc++; continue; }
     std::cout<<"execute: "<<oneline<<std::endl;
     inparser->execline(oneline, pc); //execute one line
+    //inparser->dump(); //dump for DEBUG
     pc = inparser->getPC(); // go to next instruction
-    oneline = this->code[pc];
   }
 }
 
@@ -95,7 +96,9 @@ void Interprter::preprocess() {
   int i = 0;
   BOOST_FOREACH(std::string s, this->code) {
     if (s.find(":") != std::string::npos) {
-      inparser->defLabel(s, i);
+      std::string lname = s.substr(0,s.size() - 1);
+      std::cout<<lname<<std::endl;
+      inparser->defLabel(lname, i);
     }
     i++;
   }

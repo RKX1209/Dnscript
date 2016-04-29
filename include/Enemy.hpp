@@ -32,21 +32,21 @@ public:
   ~Enemy();
   void update();
   void draw();
-  void shoot(int,int,double,double,double,int,int);
-  void shoot(int,int,double,double,double,int,Bullet::Color,int);
+  virtual void shoot(int,int,double,double,double,int,int);
+  virtual void shoot(int,int,double,double,double,int,Bullet::Color,int);
   void start_move(int,int,int);
-  void set_x(int _x){ obj_pos->x = _x; }
-  void set_y(int _y){ obj_pos->y = _y; }
-  int get_x(){ return obj_pos->x; }
-  int get_y(){ return obj_pos->y; }
-  int get_mx(){ return mx; }
-  int get_my(){ return my; }  
-  int get_width(){ return obj_rect->w; }
-  int get_height(){ return obj_rect->h; }
-  void set_speed(int _speed){ speed = _speed; }
-  void set_life(int _life){ life = _life; }
-  void set_bomb_num(int _bnum){ bomb_num = _bnum; }
-  void set_graze(int _graze){ graze = _graze; }
+  virtual void set_x(int _x){ obj_pos->x = _x; }
+  virtual void set_y(int _y){ obj_pos->y = _y; }
+  virtual int get_x(){ return obj_pos->x; }
+  virtual int get_y(){ return obj_pos->y; }
+  virtual int get_mx(){ return mx; }
+  virtual int get_my(){ return my; }
+  virtual int get_width(){ return obj_rect->w; }
+  virtual int get_height(){ return obj_rect->h; }
+  virtual void set_speed(int _speed){ speed = _speed; }
+  virtual void set_life(int _life){ life = _life; }
+  virtual void set_bomb_num(int _bnum){ bomb_num = _bnum; }
+  virtual void set_graze(int _graze){ graze = _graze; }
   void set_state(State);
   void remove_state(State);
   bool is_state(State);

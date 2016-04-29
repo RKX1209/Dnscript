@@ -33,18 +33,25 @@ Token DnInLexer::nextToken() {
           return Token(EQUAL, "=");
         }
       case '+':
+          consume();
           return Token(PLUS, "+");
       case '-':
+          consume();
           return Token(MINUS, "-");
       case '/':
+          consume();
           return Token(DIV, "/");
       case '*':
+          consume();
           return Token(MUL, "*");
       case '%':
+          consume();
           return Token(MOD, "%");
       case '&':
+          consume();
           return Token(AND, "&");
       case '!':
+          consume();
           return Token(NOT, "!");
       case '<':
         consume();
@@ -104,7 +111,9 @@ Token DnInLexer::FloatConst() {
 
 Token DnInLexer::String() {
   std::string buf;
+  consume();  
   do { buf.append(1, c); consume(); } while(isDecimal() || isLetter() || isSym());
+  consume();
   return Token(STRING, buf);
 }
 

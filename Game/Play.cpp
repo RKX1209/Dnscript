@@ -37,12 +37,12 @@ Play::Play(){
   enemies.push_back(new Enemy());
 
   /* Compile the script code and execute @Initialize function */
-  interp = new Dnlang::Interprter(enemies[0], "Dnlang/sample/enemy.dn");
+  interp = new Dnlang::Interprter(enemies.front(), "Dnlang/sample/enemy.dn");
   interp->compile();
   interp->_Init();
   interp->Initialize();
-
-  e_test = new enemy_test(enemies.front());
+  std::cout<<"enemy_0"<<enemies.front()<<std::endl;
+  //e_test = new enemy_test(enemies.front());
   //e_test->Initialize();
 
 
@@ -53,7 +53,7 @@ Play::~Play(){
   delete obj_back;
   delete player;
   delete p_test;
-  delete e_test;
+  //delete e_test;
   while(!enemies.empty()){
     Enemy* e = enemies.front();
     delete e;

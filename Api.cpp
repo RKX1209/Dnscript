@@ -167,13 +167,17 @@ void Api::RenderPresent(){
 /* ### ABI list ### */
 /* Graphics */
 void Api::_LoadGraphic(Object* target,double filename){
-  std::string *filename_s = reinterpret_cast<std::string *>((int)(filename));
-  LoadGraphic(target, *filename_s);
+  //std::cout<<(unsigned long)filename<<std::endl;
+  const char *fnamep = reinterpret_cast<const char*>((unsigned long)(filename));
+  std::string filename_s = std::string(fnamep);
+  std::cout<<"LoadGraphic: "<<filename_s<<std::endl;
+  LoadGraphic(target, filename_s);
 }
 
 void Api::_SetTexture(Object* target,double filename){
-  std::string *filename_s = reinterpret_cast<std::string *>((int)(filename));
-  SetTexture(target, *filename_s);
+  const char *fnamep = reinterpret_cast<const char*>((unsigned long)(filename));
+  std::string filename_s = std::string(fnamep);
+  SetTexture(target, filename_s);
 }
 
 void Api::_SetGraphicRect(Object* target,double sx,double sy,double dx,double dy){
@@ -270,14 +274,17 @@ void Api::_CreateShot01(Object* target,double x,double y,
 
 /* SpellCard */
 void Api::_CutIn(Object* target,double label,double img,double x1,double y1,double x2,double y2){
-  std::string *labelp = reinterpret_cast<std::string *>((int)(label));
-  std::string *imgp = reinterpret_cast<std::string *>((int)(img));
+  const char *labelp = reinterpret_cast<const char*>((unsigned long)(label));
+  std::string label_s = std::string(labelp);
+  const char *imgp = reinterpret_cast<const char*>((unsigned long)(img));
+  std::string img_s = std::string(imgp);
+
   int x1i = (int)x1;
   int y1i = (int)y1;
   int x2i = (int)x2;
   int y2i = (int)y2;
 
-  CutIn(target,*labelp,*imgp,x1i,y1i,x2i,y2i);
+  CutIn(target,label_s,img_s,x1i,y1i,x2i,y2i);
 }
 /* Action */
 void Api::_SetMovePosition02(Object* target,double x,double y,double frame){
